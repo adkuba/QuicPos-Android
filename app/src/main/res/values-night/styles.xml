@@ -1,0 +1,7 @@
+<resources>
+
+    <style name="Widget.Theme.QuicPosAndroid.MyView" parent="">
+        <item name="android:background">@color/gray_600</item>
+        <item type="attr" name="colorPrimary">@color/light_blue_600</item>
+    </style>
+</resources>
