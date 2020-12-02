@@ -6,4 +6,7 @@
     <string name="hello_first_fragment">Hello post fragment</string>
     <string name="title_activity_creator">Creator</string>
     <string name="creator">Creator</string>
+    <string name="next_post_button">Next post button</string>
+    <string name="prev_post_button">prev_post_button</string>
+    <string name="saved_button">saved_button</string>
 </resources>

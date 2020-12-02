@@ -25,7 +25,7 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:name="com.example.quicpos_android.PostFragment"
         android:id="@+id/postLayout"
         android:layout_width="match_parent"
@@ -39,7 +39,54 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_gravity="bottom"
-        app:backgroundTint="@color/purple_500"
-        android:theme="@style/Widget.MaterialComponents.BottomAppBar" />
+        app:contentInsetStart="0dp"
+        app:backgroundTint="?attr/colorPrimary"
+        android:theme="@style/Widget.MaterialComponents.BottomAppBar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <ImageButton
+                android:id="@+id/prev_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:background="?android:selectableItemBackground"
+                android:contentDescription="@string/prev_post_button"
+                android:src="@drawable/prev" />
+
+            <ImageButton
+                android:id="@+id/next_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:background="?android:selectableItemBackground"
+                android:contentDescription="@string/next_post_button"
+                android:src="@drawable/next" />
+
+            <ImageButton
+                android:id="@+id/saved_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:src="@drawable/favorite"
+                android:background="?android:selectableItemBackground"
+                android:contentDescription="@string/saved_button" />
+
+            <ImageButton
+                android:id="@+id/privacy_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:src="@drawable/lock_open"
+                android:background="?android:selectableItemBackground"
+                android:contentDescription="@string/saved_button" />
+
+        </LinearLayout>
+
+    </com.google.android.material.bottomappbar.BottomAppBar>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
