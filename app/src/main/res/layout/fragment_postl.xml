@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PostFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:ignore="MissingConstraints">
+
+            <TextView
+                android:id="@+id/userid_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/post_user"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginStart="20dp" />
+
+            <TextView
+                android:id="@+id/post_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/post_text"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:textColor="?attr/colorOnSecondary"
+                android:layout_below="@+id/userid_text"
+                android:layout_marginStart="20dp" />
+
+            <ImageView
+                android:id="@+id/post_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/post_text"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="20dp"
+                android:contentDescription="@string/post_image" />
+
+            <TextView
+                android:id="@+id/date_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/post_date"
+                android:layout_marginTop="40dp"
+                android:layout_marginEnd="20dp"
+                android:layout_below="@+id/post_text"
+                android:layout_marginStart="20dp" />
+
+            <TextView
+                android:id="@+id/stats_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/post_stats"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="20dp"
+                android:layout_below="@+id/date_text"
+                android:layout_marginStart="20dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:layout_below="@+id/stats_text"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="15dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/share_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableTint="?attr/colorOnSecondary"
+                    android:text="@string/share_button"
+                    android:background="?android:selectableItemBackground"
+                    android:textColor="?attr/colorOnSecondary"
+                    android:gravity="start|center"
+                    android:paddingStart="0dp"
+                    android:drawableLeft="@drawable/share"
+                    tools:ignore="ButtonStyle,RtlHardcoded,RtlSymmetry" />
+
+                <Button
+                    android:id="@+id/report_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableTint="?attr/colorOnSecondary"
+                    android:text="@string/report_button"
+                    android:background="?android:selectableItemBackground"
+                    android:textColor="?attr/colorOnSecondary"
+                    android:layout_marginStart="10dp"
+                    android:gravity="start|center"
+                    android:paddingStart="0dp"
+                    android:drawableLeft="@drawable/report"
+                    tools:ignore="ButtonStyle,RtlHardcoded,RtlSymmetry" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
