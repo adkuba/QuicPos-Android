@@ -4,11 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Saved">
+    tools:context=".SavedPost">
 
-    <ListView
-        android:id="@+id/saved_list"
+    <androidx.fragment.app.FragmentContainerView
+        android:name="com.example.quicpos_android.PostFragment"
+        android:id="@+id/savedPostLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
