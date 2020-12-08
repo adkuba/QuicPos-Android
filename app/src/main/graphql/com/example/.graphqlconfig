@@ -1,0 +1,15 @@
+{
+  "name": "QuicPos Schema",
+  "schemaPath": "../../../../../../remote-schema.graphql",
+  "extensions": {
+    "endpoints": {
+      "Remote QuicPos GraphQL Endpoint": {
+        "url": "https://api.quicpos.com/query",
+        "headers": {
+          "user-agent": "JS GraphQL"
+        },
+        "introspect": true
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+query GetPost($userID: Int!, $normalMode: Boolean!, $password: String!, $ad: Boolean!) {
+    post(userId: $userID, normalMode: $normalMode, password: $password, ad: $ad) {
+        ID
+        text
+        userId
+        shares
+        views
+        creationTime
+        initialReview
+        image
+    }
+}

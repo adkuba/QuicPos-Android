@@ -1,0 +1,3 @@
+query GetUser($password: String!) {
+    createUser(password: $password)
+}

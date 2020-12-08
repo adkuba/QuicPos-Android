@@ -1,0 +1,91 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Mutation {
+    createPost(input: NewPost!, password: String!): PostOut!
+    learning(input: Learning!, password: String!): Boolean!
+    payment(input: Payment!): Boolean!
+    report(input: NewReportShare!): Boolean!
+    review(input: Review!): Boolean!
+    share(input: NewReportShare!, password: String!): Boolean!
+    view(input: NewView!, password: String!): Boolean!
+}
+
+type PostOut {
+    ID: String!
+    blocked: Boolean!
+    creationTime: String!
+    image: String!
+    initialReview: Boolean!
+    money: Int!
+    shares: Int!
+    text: String!
+    userId: Int!
+    views: Int!
+}
+
+type PostReview {
+    left: Int!
+    post: PostOut!
+    spam: Float!
+}
+
+type Query {
+    createUser(password: String!): Int!
+    getStats(id: String!): Stats!
+    getStripeClient(amount: Float!): String!
+    post(ad: Boolean!, normalMode: Boolean!, password: String!, userId: Int!): PostOut!
+    unReviewed(new: Boolean!, password: String!): PostReview!
+    viewerPost(id: String!): PostOut!
+}
+
+type Stats {
+    money: Float!
+    text: String!
+    userid: Int!
+    views: [View!]
+}
+
+type View {
+    date: String!
+    localization: String!
+}
+
+input Learning {
+    detector: Float!
+    recommender: Float!
+}
+
+input NewPost {
+    image: String!
+    text: String!
+    userId: Int!
+}
+
+input NewReportShare {
+    postID: String!
+    userID: Int!
+}
+
+input NewView {
+    deviceDetails: Int!
+    postID: String!
+    time: Float!
+    userId: Int!
+}
+
+input Payment {
+    amount: Float!
+    postid: String!
+}
+
+input Review {
+    delete: Boolean!
+    new: Boolean!
+    password: String!
+    postID: String!
+}

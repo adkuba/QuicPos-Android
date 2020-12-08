@@ -1,0 +1,13 @@
+query GetViewerPost($id: String!) {
+    viewerPost(id: $id) {
+        ID
+        text
+        userId
+        shares
+        views
+        creationTime
+        initialReview
+        image
+        blocked
+    }
+}

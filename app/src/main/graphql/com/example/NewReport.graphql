@@ -1,0 +1,3 @@
+mutation Report($userID: Int!, $postID: String!) {
+    report(input: {userID: $userID, postID: $postID})
+}
