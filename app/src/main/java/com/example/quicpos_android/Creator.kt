@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.ImageButton
 import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -49,8 +50,12 @@ class Creator : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
             if (data == null){
-                //DISPLAY ERROR TODO
-                println("EMPTY DATA!")
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle("Error")
+                builder.setMessage("Empty data in selected item!")
+                builder.setPositiveButton("Ok", null)
+                val alertDialog: AlertDialog = builder.create()
+                alertDialog.show()
                 return
             }
             val inputStream: InputStream = contentResolver.openInputStream(data.data!!)!!
