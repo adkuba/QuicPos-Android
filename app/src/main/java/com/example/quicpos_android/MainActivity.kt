@@ -3,26 +3,32 @@ package com.example.quicpos_android
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.os.AsyncTask
 import android.os.Bundle
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
+import android.os.SystemClock
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.apollographql.apollo.ApolloClient
-import com.apollographql.apollo.api.cache.http.HttpCachePolicy
 import com.apollographql.apollo.coroutines.await
-import com.apollographql.apollo.coroutines.toDeferred
 import com.apollographql.apollo.exception.ApolloException
 import com.example.GetPostQuery
 import com.example.GetUserQuery
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
+import java.io.IOException
+import java.io.InputStream
+import java.net.MalformedURLException
+import java.net.URL
+import java.net.UnknownServiceException
 
 
 //post struct
@@ -31,6 +37,7 @@ data class Post(
         var text: String,
         var userid: Int?,
         var image: String?,
+        var imageBitmap: Bitmap?,
         var shares: Int?,
         var views: Int?,
         var creationTime: String?,
@@ -43,6 +50,7 @@ data class Post(
             text = text,
             userid = null,
             image = null,
+            imageBitmap = null,
             shares = null,
             views = null,
             creationTime = null,
@@ -75,6 +83,9 @@ class MainActivity : AppCompatActivity() {
     val appVariables = AppVariables()
     var adCounter = -2
     var index = 0
+
+    var startTime = 0L
+    var additionTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,9 +126,13 @@ class MainActivity : AppCompatActivity() {
         nextButton.setOnClickListener {
             if (index != posts.size-2) {
                 index += 1
+                if (index == posts.size-2){
+                    resumeTimer()
+                }
                 updatePostFragment()
             }
             else if (posts[posts.size-2].ID != null){
+                reportView()
                 posts.add(Post(text = "Loading..."))
                 if (posts.size > 10){
                     posts.removeAt(0)
@@ -125,12 +140,16 @@ class MainActivity : AppCompatActivity() {
                 getPost()
                 index = posts.size-2
                 updatePostFragment()
+                startTimer()
             }
         }
 
         val prevButton: ImageButton = findViewById(R.id.prev_button)
         prevButton.setOnClickListener {
             if (index>0){
+                if (index == posts.size-2){
+                    pauseTimer()
+                }
                 index -= 1
                 updatePostFragment()
             }
@@ -146,6 +165,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        if (index == posts.size-2){
+            pauseTimer()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (index == posts.size-2){
+            resumeTimer()
+        }
+    }
+
+    private fun reportView() {
+        println(stopTimer())
+    }
 
     fun getPost(){
         //println("USERID: $userID")
@@ -172,6 +208,8 @@ class MainActivity : AppCompatActivity() {
                 updatePostFragment()
                 return@launch
             }
+
+            adCounter += 1
 
             var index = posts.size-1
             if (posts[posts.size-2].ID == null){
@@ -200,10 +238,30 @@ class MainActivity : AppCompatActivity() {
             posts[index].creationTime = postResponse.creationTime
             posts[index].ad = ad
 
+            //if updating visible post
             if (index == posts.size-2){
                 updatePostFragment()
+                startTimer()
             }
         }
+    }
+
+    private fun startTimer(){
+        additionTime = 0
+        startTime = SystemClock.elapsedRealtime()
+    }
+
+    private fun pauseTimer(){
+        additionTime += SystemClock.elapsedRealtime() - startTime
+    }
+
+    private fun resumeTimer(){
+        startTime = SystemClock.elapsedRealtime()
+    }
+
+    private fun stopTimer(): Double{
+        val elapsedTime = SystemClock.elapsedRealtime() - startTime + additionTime
+        return elapsedTime.toDouble() / 1000
     }
 
     private fun updatePostFragment(){
@@ -212,13 +270,67 @@ class MainActivity : AppCompatActivity() {
         val postDate = findViewById<TextView>(R.id.date_text)
         val postStats = findViewById<TextView>(R.id.stats_text)
 
-        val user = getString(R.string.post_user) + (posts[index].userid ?: "0")
-        val date = posts[index].creationTime ?: getString(R.string.post_date)
+        var user = getString(R.string.post_user) + (posts[index].userid ?: "0")
+        if (posts[index].ad == true){
+            user = getString(R.string.post_ad_user) + (posts[index].userid ?: "0")
+        }
+        val date = posts[index].creationTime?.substring(0, 16) ?: getString(R.string.post_date)
         val stats = (posts[index].views ?: 0).toString() + " views " + (posts[index].shares ?: 0) + " shares"
-        postUser.text = user
-        postText.text = posts[index].text
-        postDate.text = date
-        postStats.text = stats
+
+        setImage()
+
+        if (postUser != null && postText != null && postDate != null && postStats != null){
+            postUser.text = user
+            postText.text = posts[index].text
+            postDate.text = date
+            postStats.text = stats
+        }
+    }
+
+    private fun setImage(){
+        if (posts[index].image != "" && posts[index].image != null){
+
+            println("IMAGE PRESENT" + posts[index].image)
+
+            //already downloaded
+            if (posts[index].imageBitmap != null){
+                println("ALREADY DOWNLOADED")
+                val imageView: ImageView = findViewById(R.id.post_image)
+                imageView.setImageBitmap(posts[index].imageBitmap)
+                return
+            }
+
+            //download
+            //TODO errors printing
+            val result = lifecycleScope.async(Dispatchers.IO){
+                try {
+                    val url = URL("https://storage.googleapis.com/quicpos-images/" + posts[index].image)
+                    return@async BitmapFactory.decodeStream(url.openConnection().getInputStream())
+                } catch (e: IOException){
+                    println("Error")
+                } catch (e: UnknownServiceException){
+                    println("Error2")
+                } catch (e: MalformedURLException){
+                    println("Error3")
+                }
+            }
+
+            lifecycleScope.launch {
+                println("NEED TO DOWNLOAD")
+                val savingIndex = index
+                //TODO check for null
+                val bitmap = result.await() as Bitmap
+                if (savingIndex == index){
+                    val imageView: ImageView = findViewById(R.id.post_image)
+                    imageView.setImageBitmap(bitmap)
+                }
+                posts[savingIndex].imageBitmap = bitmap
+            }
+        } else {
+            //CLEAR IMAGE
+            val imageView: ImageView = findViewById(R.id.post_image)
+            imageView.setImageBitmap(null)
+        }
     }
 
     private fun getUser(){
@@ -270,4 +382,24 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+}
+
+private class DownloadImageTask(var bmImage: ImageView) : AsyncTask<String?, Void?, Bitmap?>() {
+    override fun doInBackground(vararg urls: String?): Bitmap? {
+        val urldisplay = urls[0]
+        var mIcon11: Bitmap? = null
+        try {
+            val `in`: InputStream = URL(urldisplay).openStream()
+            mIcon11 = BitmapFactory.decodeStream(`in`)
+        } catch (e: Exception) {
+            println(e.message)
+            e.printStackTrace()
+        }
+        return mIcon11
+    }
+
+    override fun onPostExecute(result: Bitmap?) {
+        bmImage.setImageBitmap(result)
+    }
+
 }

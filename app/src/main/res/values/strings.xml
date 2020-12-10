@@ -10,6 +10,7 @@
 
     <string name="post_user">User @</string>
     <string name="default_post_user">User @0</string>
+    <string name="post_ad_user">Promoted @</string>
     <string name="post_text">Loading...</string>
     <string name="post_stats">0 views 0 shares</string>
     <string name="post_date">2020-12-04 18:30</string>
