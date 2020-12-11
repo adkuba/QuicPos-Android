@@ -5,22 +5,27 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.AsyncTask
-import android.os.Bundle
-import android.os.SystemClock
+import android.os.*
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
+import com.apollographql.apollo.ApolloCall
 import com.apollographql.apollo.ApolloClient
+import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.coroutines.await
 import com.apollographql.apollo.exception.ApolloException
 import com.example.GetPostQuery
 import com.example.GetUserQuery
+import com.example.ViewMutation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -83,7 +88,7 @@ class MainActivity : AppCompatActivity() {
     val appVariables = AppVariables()
     var adCounter = -2
     var index = 0
-
+    val postIDModel: PostIDViewModel by viewModels()
     var startTime = 0L
     var additionTime = 0L
 
@@ -95,6 +100,7 @@ class MainActivity : AppCompatActivity() {
         //init vars
         sharedPref = getPreferences(Context.MODE_PRIVATE)
         userID = sharedPref?.getInt(getString(R.string.saved_userid), 0)!!
+        postIDModel.changeUserID(userID)
 
         //saved
         val savedButton: ImageButton = findViewById(R.id.saved_button)
@@ -106,20 +112,15 @@ class MainActivity : AppCompatActivity() {
         //mode change
         val privacyButton: ImageButton = findViewById(R.id.privacy_button)
         privacyButton.setOnClickListener{
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle("Mode change")
             if (mode == "NORMAL"){
                 mode = "PRIVATE"
-                builder.setMessage("Going to private mode. Random content, no user data collected.")
+                displayAlert(title = "Mode change", message = "Going to private mode. Random content, no user data collected.")
                 privacyButton.setImageResource(R.drawable.lock)
             } else {
                 mode = "NORMAL"
-                builder.setMessage("Going to normal mode. Personalized content, user data collected.")
+                displayAlert(title = "Mode change", message = "Going to normal mode. Personalized content, user data collected.")
                 privacyButton.setImageResource(R.drawable.lock_open)
             }
-            builder.setPositiveButton("Ok", null)
-            val alertDialog: AlertDialog = builder.create()
-            alertDialog.show()
         }
 
         val nextButton: ImageButton = findViewById(R.id.next_button)
@@ -180,7 +181,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun reportView() {
-        println(stopTimer())
+        if (mode == "NORMAL" && userID != 0 && posts[posts.size-2].ID != null){
+            val objectID = posts[posts.size-2].ID?.split("\"")
+            val deviceString = Build.MANUFACTURER + " " + Build.MODEL
+
+            apolloClient
+                    .mutate(ViewMutation(userID = userID, postID = objectID?.get(1)!!, time = stopTimer(), device = deviceString, password = appVariables.password))
+                    .enqueue(object: ApolloCall.Callback<ViewMutation.Data>() {
+                        override fun onResponse(response: Response<ViewMutation.Data>){
+                            if (response.data?.view != true) {
+                                displayAlert(title = "Error!", message = "Bad report view value!")
+                            }
+                        }
+
+                        override fun onFailure(e: ApolloException) {
+                            displayAlert(title = "Error!", message = e.localizedMessage ?: "View report failed")
+                        }
+                    })
+        }
+    }
+
+    private fun displayAlert(title: String, message: String){
+        this@MainActivity.runOnUiThread {
+            val builder = AlertDialog.Builder(this@MainActivity)
+            builder.setTitle(title)
+            builder.setMessage(message)
+            builder.setPositiveButton("Ok", null)
+            val alertDialog: AlertDialog = builder.create()
+            alertDialog.show()
+        }
     }
 
     fun getPost(){
@@ -270,6 +299,8 @@ class MainActivity : AppCompatActivity() {
         val postDate = findViewById<TextView>(R.id.date_text)
         val postStats = findViewById<TextView>(R.id.stats_text)
 
+        postIDModel.changePostID(newPostID = posts[index].ID)
+
         var user = getString(R.string.post_user) + (posts[index].userid ?: "0")
         if (posts[index].ad == true){
             user = getString(R.string.post_ad_user) + (posts[index].userid ?: "0")
@@ -290,46 +321,45 @@ class MainActivity : AppCompatActivity() {
     private fun setImage(){
         if (posts[index].image != "" && posts[index].image != null){
 
-            println("IMAGE PRESENT" + posts[index].image)
-
             //already downloaded
             if (posts[index].imageBitmap != null){
-                println("ALREADY DOWNLOADED")
                 val imageView: ImageView = findViewById(R.id.post_image)
                 imageView.setImageBitmap(posts[index].imageBitmap)
                 return
             }
 
             //download
-            //TODO errors printing
             val result = lifecycleScope.async(Dispatchers.IO){
                 try {
                     val url = URL("https://storage.googleapis.com/quicpos-images/" + posts[index].image)
                     return@async BitmapFactory.decodeStream(url.openConnection().getInputStream())
                 } catch (e: IOException){
-                    println("Error")
+                    return@async null
                 } catch (e: UnknownServiceException){
-                    println("Error2")
+                    return@async null
                 } catch (e: MalformedURLException){
-                    println("Error3")
+                    return@async null
                 }
             }
 
             lifecycleScope.launch {
-                println("NEED TO DOWNLOAD")
                 val savingIndex = index
-                //TODO check for null
-                val bitmap = result.await() as Bitmap
-                if (savingIndex == index){
-                    val imageView: ImageView = findViewById(R.id.post_image)
-                    imageView.setImageBitmap(bitmap)
+                try {
+                    val bitmap = result.await() as Bitmap
+                    if (savingIndex == index){
+                        val imageView: ImageView = findViewById(R.id.post_image)
+                        imageView.setImageBitmap(bitmap)
+                    }
+                    posts[savingIndex].imageBitmap = bitmap
+                } catch (e: Exception){
+                    displayAlert(title = "Error!", message = "Can't download post image!")
                 }
-                posts[savingIndex].imageBitmap = bitmap
+
             }
         } else {
             //CLEAR IMAGE
             val imageView: ImageView = findViewById(R.id.post_image)
-            imageView.setImageBitmap(null)
+            imageView.setImageResource(0)
         }
     }
 
@@ -357,6 +387,7 @@ class MainActivity : AppCompatActivity() {
 
             //save to store and var
             userID = userid
+            postIDModel.changeUserID(userid)
             with(sharedPref?.edit()) {
                 this?.putInt(getString(R.string.saved_userid), userid)
                 this?.apply()
@@ -384,22 +415,23 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-private class DownloadImageTask(var bmImage: ImageView) : AsyncTask<String?, Void?, Bitmap?>() {
-    override fun doInBackground(vararg urls: String?): Bitmap? {
-        val urldisplay = urls[0]
-        var mIcon11: Bitmap? = null
-        try {
-            val `in`: InputStream = URL(urldisplay).openStream()
-            mIcon11 = BitmapFactory.decodeStream(`in`)
-        } catch (e: Exception) {
-            println(e.message)
-            e.printStackTrace()
-        }
-        return mIcon11
+class PostIDViewModel : ViewModel() {
+    val postID = MutableLiveData<String>()
+    val userID = MutableLiveData<Int>()
+
+    fun getUserID(): Int? {
+        return userID.value
     }
 
-    override fun onPostExecute(result: Bitmap?) {
-        bmImage.setImageBitmap(result)
+    fun changeUserID(userid: Int?) {
+        userID.value = userid
     }
 
+    fun getPostID():String? {
+        return postID.value
+    }
+
+    fun changePostID(newPostID: String?) {
+        postID.value = newPostID
+    }
 }

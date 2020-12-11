@@ -72,7 +72,7 @@ input NewReportShare {
 }
 
 input NewView {
-    deviceDetails: Int!
+    deviceDetails: String!
     postID: String!
     time: Float!
     userId: Int!
