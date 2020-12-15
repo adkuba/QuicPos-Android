@@ -8,8 +8,9 @@ class SavedPost : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_saved_post)
 
-        supportActionBar?.title = "Saved"
+        setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Post"
     }
 
     override fun onSupportNavigateUp(): Boolean {

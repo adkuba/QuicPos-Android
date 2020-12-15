@@ -215,62 +215,64 @@ class MainActivity : AppCompatActivity() {
     fun getPost(){
         //println("USERID: $userID")
 
-        var normalMode = true
-        if (mode == "PRIVATE") {
-            normalMode = false
-        }
+        if (userID != 0){
+            var normalMode = true
+            if (mode == "PRIVATE") {
+                normalMode = false
+            }
 
-        var ad = false
-        if (adCounter % 20 == 0){
-            ad = true
-        }
+            var ad = false
+            if (adCounter % 20 == 0){
+                ad = true
+            }
 
-        lifecycleScope.launch {
-            val response = try {
-                apolloClient.query(GetPostQuery(userID, normalMode, appVariables.password, ad)).await()
-            } catch (e: ApolloException) {
+            lifecycleScope.launch {
+                val response = try {
+                    apolloClient.query(GetPostQuery(userID, normalMode, appVariables.password, ad)).await()
+                } catch (e: ApolloException) {
+                    var index = posts.size-1
+                    if (posts[posts.size-2].ID == null){
+                        index = posts.size-2
+                    }
+                    posts[index] = Post(text = e.localizedMessage ?: "Error! Error with executing post query.")
+                    updatePostFragment()
+                    return@launch
+                }
+
+                adCounter += 1
+
                 var index = posts.size-1
                 if (posts[posts.size-2].ID == null){
                     index = posts.size-2
                 }
-                posts[index] = Post(text = e.localizedMessage ?: "Error! Error with executing post query.")
-                updatePostFragment()
-                return@launch
-            }
 
-            adCounter += 1
+                val postResponse = response.data?.post
+                if (postResponse == null){
+                    posts[index] = Post(text = "Error! Empty post response.")
+                    updatePostFragment()
+                    return@launch
+                }
+                if (response.hasErrors()) {
+                    posts[index] = Post(text = response.errors?.map { error -> error.message }?.joinToString { "\n" } ?: "Error! Post get response has errors.")
+                    updatePostFragment()
+                    return@launch
+                }
 
-            var index = posts.size-1
-            if (posts[posts.size-2].ID == null){
-                index = posts.size-2
-            }
+                //save to post1 or post2
+                posts[index].ID = postResponse.iD
+                posts[index].text = postResponse.text
+                posts[index].userid = postResponse.userId
+                posts[index].image = postResponse.image
+                posts[index].shares = postResponse.shares
+                posts[index].views = postResponse.views
+                posts[index].creationTime = postResponse.creationTime
+                posts[index].ad = ad
 
-            val postResponse = response.data?.post
-            if (postResponse == null){
-                posts[index] = Post(text = "Error! Empty post response.")
-                updatePostFragment()
-                return@launch
-            }
-            if (response.hasErrors()) {
-                posts[index] = Post(text = response.errors?.map { error -> error.message }?.joinToString { "\n" } ?: "Error! Post get response has errors.")
-                updatePostFragment()
-                return@launch
-            }
-
-            //save to post1 or post2
-            posts[index].ID = postResponse.iD
-            posts[index].text = postResponse.text
-            posts[index].userid = postResponse.userId
-            posts[index].image = postResponse.image
-            posts[index].shares = postResponse.shares
-            posts[index].views = postResponse.views
-            posts[index].creationTime = postResponse.creationTime
-            posts[index].ad = ad
-
-            //if updating visible post
-            if (index == posts.size-2){
-                updatePostFragment()
-                startTimer()
+                //if updating visible post
+                if (index == posts.size-2){
+                    updatePostFragment()
+                    startTimer()
+                }
             }
         }
     }

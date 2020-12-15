@@ -55,6 +55,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.25"
                 android:background="?android:selectableItemBackground"
+                android:tint="?attr/colorOnSecondary"
                 android:contentDescription="@string/prev_post_button"
                 android:src="@drawable/prev" />
 
@@ -63,6 +64,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.25"
+                android:tint="?attr/colorOnSecondary"
                 android:background="?android:selectableItemBackground"
                 android:contentDescription="@string/next_post_button"
                 android:src="@drawable/next" />
@@ -73,6 +75,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.25"
                 android:src="@drawable/favorite"
+                android:tint="?attr/colorOnSecondary"
                 android:background="?android:selectableItemBackground"
                 android:contentDescription="@string/saved_button" />
 
@@ -81,6 +84,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.25"
+                android:tint="?attr/colorOnSecondary"
                 android:src="@drawable/lock_open"
                 android:background="?android:selectableItemBackground"
                 android:contentDescription="@string/saved_button" />

@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.QuicPosAndroid" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimary">@color/gray_400</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
@@ -12,6 +12,8 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
         <!-- Customize your theme here. -->
+        <item name="actionBarStyle">@style/Custom.ActionBar</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
     </style>
 
     <style name="Theme.QuicPosAndroid.NoActionBar">
@@ -19,7 +21,13 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.QuicPosAndroid.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="Theme.QuicPosAndroid.AppBarOverlay" >
+        <item name="android:textColor">@color/black</item>
+    </style>
 
     <style name="Theme.QuicPosAndroid.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

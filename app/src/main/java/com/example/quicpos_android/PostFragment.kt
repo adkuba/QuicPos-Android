@@ -1,5 +1,6 @@
 package com.example.quicpos_android
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -15,6 +16,7 @@ import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloException
 import com.example.ReportMutation
+import com.example.ShareMutation
 import com.example.ViewMutation
 
 /**
@@ -22,10 +24,11 @@ import com.example.ViewMutation
  */
 class PostFragment : Fragment() {
 
-    val postIDModel: PostIDViewModel by activityViewModels()
+    private val postIDModel: PostIDViewModel by activityViewModels()
     private val apolloClient: ApolloClient = ApolloClient.builder()
             .serverUrl("https://www.api.quicpos.com/query")
             .build()
+    val appVariables = AppVariables()
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -40,20 +43,53 @@ class PostFragment : Fragment() {
 
         val reportButton: Button = view.findViewById(R.id.report_button)
         reportButton.setOnClickListener {
-            println(postIDModel.getPostID())
+            //println(postIDModel.getPostID())
             reportPost()
+        }
+
+        val shareButton: Button = view.findViewById(R.id.share_button)
+        shareButton.setOnClickListener {
+            println(postIDModel.getPostID())
+            sharePost()
+        }
+    }
+
+    private fun sharePost(){
+        if (postIDModel.getPostID() != null && (postIDModel.getUserID() ?: 0) != 0){
+            val objectID = postIDModel.getPostID()!!.split("\"")
+
+            apolloClient
+                    .mutate(ShareMutation(userID = postIDModel.getUserID()!!, postID = objectID[1], password = appVariables.password))
+                    .enqueue(object: ApolloCall.Callback<ShareMutation.Data>() {
+                        override fun onFailure(e: ApolloException) {
+                            displayAlert("Error!", message = e.localizedMessage ?: "Can't execute share mutation.")
+                        }
+
+                        override fun onResponse(response: Response<ShareMutation.Data>) {
+                            if (response.data?.share != true){
+                                displayAlert("Error!", message = "Bad share return! Contact us to resolve the issue.")
+                            } else {
+                                val intent = Intent()
+                                intent.action = Intent.ACTION_SEND
+                                intent.putExtra(Intent.EXTRA_TEXT, "https://www.quicpos.com/post/" + objectID[1])
+                                intent.type = "text/plain"
+                                startActivity(Intent.createChooser(intent, "Share post"))
+                            }
+                        }
+
+                    })
         }
     }
 
     private fun reportPost(){
-        if (postIDModel.getPostID() != null) {
+        if (postIDModel.getPostID() != null && (postIDModel.getUserID() ?: 0) != 0) {
             val objectID = postIDModel.getPostID()!!.split("\"")
 
             apolloClient
-                    .mutate(ReportMutation(userID = postIDModel.getUserID() ?: -1, postID = objectID[1]))
+                    .mutate(ReportMutation(userID = postIDModel.getUserID()!!, postID = objectID[1]))
                     .enqueue(object: ApolloCall.Callback<ReportMutation.Data>() {
                         override fun onFailure(e: ApolloException) {
-                            displayAlert("Error!", message = e.localizedMessage ?: "Can't execute mutation.")
+                            displayAlert("Error!", message = e.localizedMessage ?: "Can't execute report mutation.")
                         }
 
                         override fun onResponse(response: Response<ReportMutation.Data>) {

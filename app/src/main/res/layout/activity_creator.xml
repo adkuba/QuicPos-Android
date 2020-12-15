@@ -8,46 +8,69 @@
     tools:context=".Creator">
 
 
-    <ScrollView
-        android:id="@+id/scrollView2"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="50dp">
+        android:orientation="vertical">
 
-        <RelativeLayout
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:theme="@style/Theme.QuicPosAndroid.AppBarOverlay">
 
-            <EditText
-                android:id="@+id/create_text"
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="15dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="15dp"
-                android:layout_marginBottom="20dp"
-                android:background="@android:color/transparent"
-                android:hint="@string/create_hint"
-                android:importantForAutofill="no"
-                android:inputType="textMultiLine"
-                android:textSize="16sp" />
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/Theme.QuicPosAndroid.PopupOverlay" />
 
-            <ImageView
-                android:id="@+id/creator_image"
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <ScrollView
+            android:id="@+id/scrollView2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="50dp">
+
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/create_text"
-                android:scaleType="fitStart"
-                android:adjustViewBounds="true"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="15dp"
-                android:layout_marginStart="15dp"
-                android:layout_marginBottom="20dp"
-                android:contentDescription="@string/post_image" />
+                android:layout_height="wrap_content">
 
-        </RelativeLayout>
+                <EditText
+                    android:id="@+id/create_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/create_hint"
+                    android:importantForAutofill="no"
+                    android:inputType="textMultiLine"
+                    android:textSize="16sp" />
 
-    </ScrollView>
+                <ImageView
+                    android:id="@+id/creator_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/create_text"
+                    android:scaleType="fitStart"
+                    android:adjustViewBounds="true"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:contentDescription="@string/post_image" />
+
+            </RelativeLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottom_main_bar"
@@ -69,6 +92,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.2"
+                android:tint="?attr/colorOnSecondary"
                 android:background="?android:selectableItemBackground"
                 android:contentDescription="@string/select_image"
                 android:src="@drawable/image" />
@@ -78,7 +102,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.6"
                 android:gravity="center"
-                android:textColor="@color/white"
+                android:textColor="?attr/colorOnSecondary"
                 android:text="@string/create_post"/>
 
             <ImageButton
@@ -86,6 +110,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.2"
+                android:tint="?attr/colorOnSecondary"
                 android:background="?android:selectableItemBackground"
                 android:contentDescription="@string/creator_send"
                 android:src="@drawable/send" />

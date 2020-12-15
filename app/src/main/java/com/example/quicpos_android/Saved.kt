@@ -17,8 +17,9 @@ class Saved : AppCompatActivity() {
 
         postIDModel.changeUserID(null)
 
-        supportActionBar?.title = "Saved"
+        setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Saved"
 
         val text = arrayOf(
                 "Post1",

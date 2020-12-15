@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.Menu
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
@@ -23,7 +24,7 @@ class Creator : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_creator)
 
-        supportActionBar?.title = "Creator"
+        setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val galleryButton: ImageButton = findViewById(R.id.gallery_button)
@@ -68,4 +69,6 @@ class Creator : AppCompatActivity() {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out)
         }
     }
+
+
 }

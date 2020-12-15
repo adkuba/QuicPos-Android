@@ -18,7 +18,7 @@
     <TextView
         android:id="@+id/mini_link"
         android:text="link"
-        android:textColor="@color/light_blue_600"
+        android:textColor="?attr/colorSecondary"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="15dp"
         android:layout_marginStart="15dp"
