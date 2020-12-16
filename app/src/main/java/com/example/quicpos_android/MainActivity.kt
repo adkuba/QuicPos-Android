@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
 
         //init vars
-        sharedPref = getPreferences(Context.MODE_PRIVATE)
+        sharedPref = getSharedPreferences("QUICPOS", Context.MODE_PRIVATE)
         userID = sharedPref?.getInt(getString(R.string.saved_userid), 0)!!
         postIDModel.changeUserID(userID)
 

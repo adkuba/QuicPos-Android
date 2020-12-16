@@ -110,10 +110,23 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.2"
+                android:visibility="visible"
                 android:tint="?attr/colorOnSecondary"
                 android:background="?android:selectableItemBackground"
                 android:contentDescription="@string/creator_send"
                 android:src="@drawable/send" />
+
+            <ProgressBar
+                android:id="@+id/send_progress"
+                android:visibility="gone"
+                android:layout_weight="0.2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxHeight="30dp"
+                android:layout_gravity="center"
+                android:maxWidth="30dp"
+                android:minHeight="30dp"
+                android:minWidth="30dp" />
 
         </LinearLayout>
 
