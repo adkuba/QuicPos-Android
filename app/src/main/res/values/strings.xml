@@ -22,5 +22,7 @@
     <string name="create_post">Create post</string>
     <string name="select_image">creator select image button</string>
     <string name="creator_send">creator send button</string>
+
     <string name="saved_userid">com.example.quicpos.userid</string>
+    <string name="myposts">com.example.quicpos.myposts</string>
 </resources>

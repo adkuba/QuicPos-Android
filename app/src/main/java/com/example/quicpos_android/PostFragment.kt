@@ -1,6 +1,8 @@
 package com.example.quicpos_android
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -69,6 +71,15 @@ class PostFragment : Fragment() {
                             if (response.data?.share != true){
                                 displayAlert("Error!", message = "Bad share return! Contact us to resolve the issue.")
                             } else {
+                                //save post
+                                val myPosts = postIDModel.getSharedPref()?.getStringSet(getString(R.string.myposts), HashSet<String>())
+                                val copyMyPosts = myPosts?.toMutableSet()
+                                copyMyPosts?.add(objectID[1])
+                                val editor = postIDModel.getSharedPref()?.edit()
+                                editor?.putStringSet(getString(com.example.quicpos_android.R.string.myposts), copyMyPosts)
+                                editor?.apply()
+
+                                //share
                                 val intent = Intent()
                                 intent.action = Intent.ACTION_SEND
                                 intent.putExtra(Intent.EXTRA_TEXT, "https://www.quicpos.com/post/" + objectID[1])

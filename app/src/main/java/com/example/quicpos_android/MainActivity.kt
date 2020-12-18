@@ -78,7 +78,7 @@ data class AppVariables(
 class MainActivity : AppCompatActivity() {
 
     var mode = "NORMAL"
-    private val apolloClient: ApolloClient = ApolloClient.builder()
+    val apolloClient: ApolloClient = ApolloClient.builder()
         .serverUrl("https://www.api.quicpos.com/query")
         .build()
     private var sharedPref: SharedPreferences? = null
@@ -101,6 +101,7 @@ class MainActivity : AppCompatActivity() {
         sharedPref = getSharedPreferences("QUICPOS", Context.MODE_PRIVATE)
         userID = sharedPref?.getInt(getString(R.string.saved_userid), 0)!!
         postIDModel.changeUserID(userID)
+        postIDModel.setSharedPref(sharedPref)
 
         //saved
         val savedButton: ImageButton = findViewById(R.id.saved_button)
@@ -420,6 +421,15 @@ class MainActivity : AppCompatActivity() {
 class PostIDViewModel : ViewModel() {
     val postID = MutableLiveData<String>()
     val userID = MutableLiveData<Int>()
+    val sharedPref = MutableLiveData<SharedPreferences>()
+
+    fun getSharedPref(): SharedPreferences? {
+        return sharedPref.value
+    }
+
+    fun setSharedPref(newSharedPref: SharedPreferences?) {
+        sharedPref.value = newSharedPref
+    }
 
     fun getUserID(): Int? {
         return userID.value

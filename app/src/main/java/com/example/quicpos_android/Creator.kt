@@ -24,6 +24,7 @@ import com.example.CreatePostMutation
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.util.*
+import kotlin.collections.HashSet
 
 
 class Creator : AppCompatActivity() {
@@ -95,6 +96,16 @@ class Creator : AppCompatActivity() {
                             override fun onResponse(response: Response<CreatePostMutation.Data>) {
                                 val objectID = response.data?.createPost?.iD?.split("\"")
                                 if (objectID != null){
+                                    //save to memory
+                                    val myPosts = sharedPref?.getStringSet(getString(R.string.myposts), HashSet<String>())
+                                    val copyMyPosts = myPosts?.toMutableSet()
+                                    copyMyPosts?.add(objectID[1])
+                                    val editor = sharedPref?.edit()
+                                    editor?.putStringSet(getString(com.example.quicpos_android.R.string.myposts), copyMyPosts)
+                                    editor?.apply()
+
+
+                                    //share
                                     val intent = Intent()
                                     intent.action = Intent.ACTION_SEND
                                     intent.putExtra(Intent.EXTRA_TEXT, "https://www.quicpos.com/post/" + objectID[1])
