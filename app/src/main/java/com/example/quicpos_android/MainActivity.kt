@@ -11,12 +11,8 @@ import android.view.MenuItem
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import com.apollographql.apollo.ApolloCall
 import com.apollographql.apollo.ApolloClient
@@ -30,7 +26,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.io.IOException
-import java.io.InputStream
 import java.net.MalformedURLException
 import java.net.URL
 import java.net.UnknownServiceException
@@ -77,20 +72,19 @@ data class AppVariables(
 
 class MainActivity : AppCompatActivity() {
 
-    var mode = "NORMAL"
-    val apolloClient: ApolloClient = ApolloClient.builder()
+    private var mode = "NORMAL"
+    private val apolloClient: ApolloClient = ApolloClient.builder()
         .serverUrl("https://www.api.quicpos.com/query")
         .build()
     private var sharedPref: SharedPreferences? = null
-    var userID = 0
+    private var userID = 0
 
-    var posts = arrayListOf(Post(text = "Loading..."), Post(text = "Loading..."))
-    val appVariables = AppVariables()
-    var adCounter = -2
-    var index = 0
-    val postIDModel: PostIDViewModel by viewModels()
-    var startTime = 0L
-    var additionTime = 0L
+    private var posts = arrayListOf(Post(text = "Loading..."), Post(text = "Loading..."))
+    private val appVariables = AppVariables()
+    private var adCounter = -2
+    private var index = 0
+    private var startTime = 0L
+    private var additionTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,8 +94,8 @@ class MainActivity : AppCompatActivity() {
         //init vars
         sharedPref = getSharedPreferences("QUICPOS", Context.MODE_PRIVATE)
         userID = sharedPref?.getInt(getString(R.string.saved_userid), 0)!!
-        postIDModel.changeUserID(userID)
-        postIDModel.setSharedPref(sharedPref)
+        Memory.userID = userID
+        Memory.sharedPref = sharedPref
 
         //saved
         val savedButton: ImageButton = findViewById(R.id.saved_button)
@@ -213,7 +207,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun getPost(){
+    private fun getPost(){
         //println("USERID: $userID")
 
         if (userID != 0){
@@ -302,7 +296,7 @@ class MainActivity : AppCompatActivity() {
         val postDate = findViewById<TextView>(R.id.date_text)
         val postStats = findViewById<TextView>(R.id.stats_text)
 
-        postIDModel.changePostID(newPostID = posts[index].ID)
+        Memory.currentPostID = posts[index].ID
 
         var user = getString(R.string.post_user) + (posts[index].userid ?: "0")
         if (posts[index].ad == true){
@@ -390,7 +384,7 @@ class MainActivity : AppCompatActivity() {
 
             //save to store and var
             userID = userid
-            postIDModel.changeUserID(userid)
+            Memory.userID = userID
             with(sharedPref?.edit()) {
                 this?.putInt(getString(R.string.saved_userid), userid)
                 this?.apply()
@@ -418,32 +412,6 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-class PostIDViewModel : ViewModel() {
-    val postID = MutableLiveData<String>()
-    val userID = MutableLiveData<Int>()
-    val sharedPref = MutableLiveData<SharedPreferences>()
-
-    fun getSharedPref(): SharedPreferences? {
-        return sharedPref.value
-    }
-
-    fun setSharedPref(newSharedPref: SharedPreferences?) {
-        sharedPref.value = newSharedPref
-    }
-
-    fun getUserID(): Int? {
-        return userID.value
-    }
-
-    fun changeUserID(userid: Int?) {
-        userID.value = userid
-    }
-
-    fun getPostID():String? {
-        return postID.value
-    }
-
-    fun changePostID(newPostID: String?) {
-        postID.value = newPostID
-    }
-}
+//KIEDYŚ MIAŁEM VIEW MODEL
+//TO CHYBA DZIAŁAŁO JAK STORE W VUE
+//TERAZ UŻYWAM OBJECT Z SAVED
