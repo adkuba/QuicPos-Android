@@ -1,11 +1,15 @@
 package com.example.quicpos_android
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.*
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.SystemClock
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageButton
@@ -96,6 +100,25 @@ class MainActivity : AppCompatActivity() {
         userID = sharedPref?.getInt(getString(R.string.saved_userid), 0)!!
         Memory.userID = userID
         Memory.sharedPref = sharedPref
+
+        val initAlert = sharedPref?.getBoolean(getString(R.string.initalert), false)!!
+        if (!initAlert){
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Regulations")
+            builder.setMessage("By using QuicPos you agree to our regulations.")
+            builder.setNeutralButton("Read more", DialogInterface.OnClickListener{ dialog, id ->
+                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.quicpos.com#regulations"))
+                startActivity(browserIntent)
+            })
+            builder.setPositiveButton("Ok", null)
+            val alertDialog: AlertDialog = builder.create()
+            alertDialog.show()
+
+            with(sharedPref?.edit()) {
+                this?.putBoolean(getString(R.string.initalert), true)
+                this?.apply()
+            }
+        }
 
         //saved
         val savedButton: ImageButton = findViewById(R.id.saved_button)

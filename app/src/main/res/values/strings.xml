@@ -25,4 +25,5 @@
 
     <string name="saved_userid">com.example.quicpos.userid</string>
     <string name="myposts">com.example.quicpos.myposts</string>
+    <string name="initalert">com.example.quicpos.initalert</string>
 </resources>
