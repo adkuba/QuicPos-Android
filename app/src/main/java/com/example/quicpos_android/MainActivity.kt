@@ -69,7 +69,7 @@ data class AppVariables(
         val password: String
 ) {
     constructor() : this(
-            password = "kuba"
+            password = ""
     )
 }
 
