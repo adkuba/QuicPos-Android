@@ -102,6 +102,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.6"
                 android:gravity="center"
+                android:textSize="12sp"
                 android:textColor="?attr/colorOnSecondary"
                 android:text="@string/create_post"/>
 

@@ -109,18 +109,17 @@ class Saved : AppCompatActivity() {
 
                     if (!postResponse.blocked){
                         counter++
+                        postsTexts.add(postResponse.text)
+                        postsLinks.add("https://www.quicpos.com/stats/$it")
+                        Memory.posts.add(post)
                     }
-
-                    postsTexts.add(postResponse.text)
-                    postsLinks.add("https://www.quicpos.com/stats/$it")
-                    Memory.posts.add(post)
 
                 } else {
                     if (!existingPost?.blocked!!){
                         counter++
+                        postsTexts.add(existingPost?.text!!)
+                        postsLinks.add("https://www.quicpos.com/stats/" + existingPost?.ID!!.split("\"")[1])
                     }
-                    postsTexts.add(existingPost?.text!!)
-                    postsLinks.add("https://www.quicpos.com/stats/" + existingPost?.ID!!)
                 }
 
                 val savedListAdapter = SavedListAdapter(this@Saved, postsTexts.toTypedArray(), postsLinks.toTypedArray())
