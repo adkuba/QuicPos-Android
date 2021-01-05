@@ -51,7 +51,7 @@ class PostFragment : Fragment() {
     }
 
     private fun sharePost(){
-        if (Memory.currentPostID != null && Memory.userID != 0){
+        if (Memory.currentPostID != null && Memory.userID != ""){
             val objectID = Memory.currentPostID!!.split("\"")
 
             apolloClient
@@ -87,7 +87,7 @@ class PostFragment : Fragment() {
     }
 
     private fun reportPost(){
-        if (Memory.currentPostID != null && Memory.userID != 0) {
+        if (Memory.currentPostID != null && Memory.userID != "") {
             val objectID = Memory.currentPostID!!.split("\"")
 
             apolloClient

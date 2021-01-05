@@ -1,4 +1,4 @@
-mutation View($userID: Int!, $postID: String!, $time: Float!, $device: String!, $password: String!) {
+mutation View($userID: String!, $postID: String!, $time: Float!, $device: String!, $password: String!) {
     view(
         input: {
             postID: $postID,

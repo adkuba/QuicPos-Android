@@ -1,4 +1,4 @@
-mutation CreatePost($text: String!, $userId: Int!, $image: String!, $password: String!) {
+mutation CreatePost($text: String!, $userId: String!, $image: String!, $password: String!) {
     createPost(
         input: {
             text: $text

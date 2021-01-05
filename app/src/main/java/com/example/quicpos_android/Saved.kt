@@ -23,7 +23,7 @@ import kotlin.collections.toTypedArray
 object Memory {
     var posts = ArrayList<Post>()
     var currentPostID: String? = null
-    var userID = 0
+    var userID = ""
     var sharedPref: SharedPreferences? = null
 }
 
@@ -33,6 +33,7 @@ class Saved : AppCompatActivity() {
     private var postsNumber = 0
     private var postsTexts = ArrayList<String>()
     private var postsLinks = ArrayList<String>()
+    private var postsOwner = ArrayList<Boolean>()
 
     private val apolloClient: ApolloClient = ApolloClient.builder()
             .serverUrl("https://www.api.quicpos.com/query")
@@ -68,6 +69,7 @@ class Saved : AppCompatActivity() {
     private fun getPosts(postsids: Set<String>) {
         lifecycleScope.launch {
             var counter = 0
+            var toDelete = ArrayList<String>()
             postsids.forEach {
                 var existingPost: Post? = null
                 Memory.posts.forEach PostLoop@{ post ->
@@ -80,7 +82,7 @@ class Saved : AppCompatActivity() {
                 if (existingPost == null){
                     val response = try {
                         apolloClient.query(GetViewerPostQuery(id = it))
-                                .await()
+                            .await()
                     } catch (e: ApolloException){
                         displayAlert("Error!", e.localizedMessage ?: "Can't execute post get query.")
                         return@launch
@@ -96,37 +98,60 @@ class Saved : AppCompatActivity() {
                         return@launch
                     }
 
-                    //save to array
-                    val post = Post(text = "Loading...")
-                    post.ID = postResponse.iD
-                    post.text = postResponse.text
-                    post.userid = postResponse.userId
-                    post.image = postResponse.image
-                    post.blocked = postResponse.blocked
-                    post.shares = postResponse.shares
-                    post.views = postResponse.views
-                    post.creationTime = postResponse.creationTime
+                    if (postResponse.userId != ""){
+                        //save to array
+                        val post = Post(text = "Loading...")
+                        post.ID = postResponse.iD
+                        post.text = postResponse.text
+                        post.userid = postResponse.userId
+                        post.image = postResponse.image
+                        post.blocked = postResponse.blocked
+                        post.shares = postResponse.shares
+                        post.views = postResponse.views
+                        post.creationTime = postResponse.creationTime
 
-                    if (!postResponse.blocked){
-                        counter++
-                        postsTexts.add(postResponse.text)
-                        postsLinks.add("https://www.quicpos.com/stats/$it")
-                        Memory.posts.add(post)
+                        if (!postResponse.blocked){
+                            counter++
+                            postsTexts.add(postResponse.text)
+                            if (postResponse.userId == Memory.userID){
+                                postsLinks.add("https://www.quicpos.com/pay/$it")
+                                postsOwner.add(true)
+                            } else {
+                                postsLinks.add("https://www.quicpos.com/stats/$it")
+                                postsOwner.add(false)
+                            }
+                            Memory.posts.add(post)
+                        }
+                    } else {
+                        toDelete.add(it)
                     }
-
                 } else {
                     if (!existingPost?.blocked!!){
                         counter++
                         postsTexts.add(existingPost?.text!!)
-                        postsLinks.add("https://www.quicpos.com/stats/" + existingPost?.ID!!.split("\"")[1])
+                        if (existingPost?.userid == Memory.userID){
+                            postsLinks.add("https://www.quicpos.com/pay/" + existingPost?.ID!!.split("\"")[1])
+                            postsOwner.add(true)
+                        } else {
+                            postsLinks.add("https://www.quicpos.com/stats/" + existingPost?.ID!!.split("\"")[1])
+                            postsOwner.add(false)
+                        }
                     }
                 }
 
-                val savedListAdapter = SavedListAdapter(this@Saved, postsTexts.toTypedArray(), postsLinks.toTypedArray())
+                val savedListAdapter = SavedListAdapter(this@Saved, postsTexts.toTypedArray(), postsLinks.toTypedArray(), postsOwner.toTypedArray())
                 val listView: ListView = findViewById(R.id.saved_list)
                 listView.adapter = savedListAdapter
             }
             updateNumber(counter)
+            val myPosts = sharedPref?.getStringSet(getString(R.string.myposts), HashSet<String>())
+            val copyMyPosts = myPosts?.toMutableSet()
+            toDelete.forEach {
+                copyMyPosts?.remove(it)
+            }
+            val editor = sharedPref?.edit()
+            editor?.putStringSet(getString(R.string.myposts), copyMyPosts)
+            editor?.apply()
         }
     }
 

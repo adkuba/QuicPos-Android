@@ -41,7 +41,7 @@ class SavedPost : AppCompatActivity() {
         val postID: TextView = findViewById(R.id.post_id)
 
 
-        val user = getString(R.string.post_user) + (Memory.posts[postIDX].userid ?: "0")
+        val user = getString(R.string.post_user) + (Memory.posts[postIDX].userid?.substring(0, 4) ?: "auto")
         val date = Memory.posts[postIDX].creationTime?.substring(0, 16) ?: getString(R.string.post_date)
         val stats = (Memory.posts[postIDX].views ?: 0).toString() + " views " + (Memory.posts[postIDX].shares ?: 0) + " shares"
 

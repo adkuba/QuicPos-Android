@@ -35,7 +35,7 @@ class Creator : AppCompatActivity() {
             .serverUrl("https://www.api.quicpos.com/query")
             .build()
     private var sharedPref: SharedPreferences? = null
-    var userID = 0
+    var userID = ""
     val appVariables = AppVariables()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +46,7 @@ class Creator : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         sharedPref = getSharedPreferences("QUICPOS", Context.MODE_PRIVATE)
-        userID = sharedPref?.getInt(getString(R.string.saved_userid), 0)!!
+        userID = sharedPref?.getString(getString(R.string.saved_userid), "")!!
 
         val galleryButton: ImageButton = findViewById(R.id.gallery_button)
         galleryButton.setOnClickListener {
@@ -75,7 +75,7 @@ class Creator : AppCompatActivity() {
         val text = editText.text.toString()
 
         if (text != ""){
-            if (userID != 0){
+            if (userID != ""){
                 //get image
                 if (mainBitmap != null) {
                     val out = ByteArrayOutputStream()
@@ -103,6 +103,7 @@ class Creator : AppCompatActivity() {
                                     val editor = sharedPref?.edit()
                                     editor?.putStringSet(getString(com.example.quicpos_android.R.string.myposts), copyMyPosts)
                                     editor?.apply()
+                                    Memory.posts = ArrayList()
 
 
                                     //share

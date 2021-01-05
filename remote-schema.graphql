@@ -9,6 +9,7 @@ type Mutation {
     createPost(input: NewPost!, password: String!): PostOut!
     learning(input: Learning!, password: String!): Boolean!
     payment(input: Payment!): Boolean!
+    removePost(input: Remove!, password: String!): Boolean!
     report(input: NewReportShare!): Boolean!
     review(input: Review!): Boolean!
     share(input: NewReportShare!, password: String!): Boolean!
@@ -24,7 +25,7 @@ type PostOut {
     money: Int!
     shares: Int!
     text: String!
-    userId: Int!
+    userId: String!
     views: Int!
 }
 
@@ -35,10 +36,11 @@ type PostReview {
 }
 
 type Query {
-    createUser(password: String!): Int!
+    createUser(password: String!): String!
     getStats(id: String!): Stats!
     getStripeClient(amount: Float!): String!
-    post(ad: Boolean!, normalMode: Boolean!, password: String!, userId: Int!): PostOut!
+    post(ad: Boolean!, normalMode: Boolean!, password: String!, userId: String!): PostOut!
+    storageIntegrity(password: String!): String!
     unReviewed(new: Boolean!, password: String!): PostReview!
     viewerPost(id: String!): PostOut!
 }
@@ -46,7 +48,7 @@ type Query {
 type Stats {
     money: Float!
     text: String!
-    userid: Int!
+    userid: String!
     views: [View!]
 }
 
@@ -63,24 +65,29 @@ input Learning {
 input NewPost {
     image: String!
     text: String!
-    userId: Int!
+    userId: String!
 }
 
 input NewReportShare {
     postID: String!
-    userID: Int!
+    userID: String!
 }
 
 input NewView {
     deviceDetails: String!
     postID: String!
     time: Float!
-    userId: Int!
+    userId: String!
 }
 
 input Payment {
     amount: Float!
     postid: String!
+}
+
+input Remove {
+    postID: String!
+    userID: String!
 }
 
 input Review {

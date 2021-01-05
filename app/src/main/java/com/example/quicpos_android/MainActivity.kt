@@ -39,7 +39,7 @@ import java.net.UnknownServiceException
 data class Post(
         var ID: String?,
         var text: String,
-        var userid: Int?,
+        var userid: String?,
         var image: String?,
         var imageBitmap: Bitmap?,
         var shares: Int?,
@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         .serverUrl("https://www.api.quicpos.com/query")
         .build()
     private var sharedPref: SharedPreferences? = null
-    private var userID = 0
+    private var userID = ""
 
     private var posts = arrayListOf(Post(text = "Loading..."), Post(text = "Loading..."))
     private val appVariables = AppVariables()
@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
 
         //init vars
         sharedPref = getSharedPreferences("QUICPOS", Context.MODE_PRIVATE)
-        userID = sharedPref?.getInt(getString(R.string.saved_userid), 0)!!
+        userID = sharedPref?.getString(getString(R.string.saved_userid), "")!!
         Memory.userID = userID
         Memory.sharedPref = sharedPref
 
@@ -175,13 +175,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         //getUserID and then posts or only posts if userID exists
-        if (userID == 0){
+        if (userID == ""){
             getUser()
         } else {
             //get 2 posts
             getPost()
             getPost()
         }
+        println(userID)
     }
 
     override fun onPause() {
@@ -199,7 +200,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun reportView() {
-        if (mode == "NORMAL" && userID != 0 && posts[posts.size-2].ID != null){
+        if (mode == "NORMAL" && userID != "" && posts[posts.size-2].ID != null){
             val objectID = posts[posts.size-2].ID?.split("\"")
             val deviceString = Build.MANUFACTURER + " " + Build.MODEL
 
@@ -233,7 +234,7 @@ class MainActivity : AppCompatActivity() {
     private fun getPost(){
         //println("USERID: $userID")
 
-        if (userID != 0){
+        if (userID != ""){
             var normalMode = true
             if (mode == "PRIVATE") {
                 normalMode = false
@@ -265,13 +266,13 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 val postResponse = response.data?.post
-                if (postResponse == null){
-                    posts[index] = Post(text = "Error! Empty post response.")
+                if (response.hasErrors()) {
+                    posts[index] = Post(text = response.errors?.map { error -> error.message }?.joinToString { "\n" } ?: "Error! Post get response has errors.")
                     updatePostFragment()
                     return@launch
                 }
-                if (response.hasErrors()) {
-                    posts[index] = Post(text = response.errors?.map { error -> error.message }?.joinToString { "\n" } ?: "Error! Post get response has errors.")
+                if (postResponse == null){
+                    posts[index] = Post(text = "Error! Empty post response.")
                     updatePostFragment()
                     return@launch
                 }
@@ -321,9 +322,9 @@ class MainActivity : AppCompatActivity() {
 
         Memory.currentPostID = posts[index].ID
 
-        var user = getString(R.string.post_user) + (posts[index].userid ?: "0")
+        var user = getString(R.string.post_user) + (posts[index].userid?.substring(0, 4) ?: "auto")
         if (posts[index].ad == true){
-            user = getString(R.string.post_ad_user) + (posts[index].userid ?: "0")
+            user = getString(R.string.post_ad_user) + (posts[index].userid?.substring(0, 4) ?: "auto")
         }
         val date = posts[index].creationTime?.substring(0, 16) ?: getString(R.string.post_date)
         val stats = (posts[index].views ?: 0).toString() + " views " + (posts[index].shares ?: 0) + " shares"
@@ -409,7 +410,7 @@ class MainActivity : AppCompatActivity() {
             userID = userid
             Memory.userID = userID
             with(sharedPref?.edit()) {
-                this?.putInt(getString(R.string.saved_userid), userid)
+                this?.putString(getString(R.string.saved_userid), userid)
                 this?.apply()
             }
             //get 2 posts

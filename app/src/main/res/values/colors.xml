@@ -13,4 +13,5 @@
     <color name="gray_600">#FF757575</color>
     <color name="dark_action_bar">#212121</color>
     <color name="light_action_bar">#484848</color>
+    <color name="red">#FF0000</color>
 </resources>

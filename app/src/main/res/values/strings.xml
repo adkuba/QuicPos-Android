@@ -23,7 +23,7 @@
     <string name="select_image">creator select image button</string>
     <string name="creator_send">creator send button</string>
 
-    <string name="saved_userid">com.example.quicpos.userid</string>
+    <string name="saved_userid">com.example.quicpos.user</string>
     <string name="myposts">com.example.quicpos.myposts</string>
     <string name="initalert">com.example.quicpos.initalert</string>
 </resources>

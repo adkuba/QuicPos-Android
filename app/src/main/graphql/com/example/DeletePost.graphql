@@ -1,0 +1,9 @@
+mutation DeletePost($postID: String!, $userID: String!, $password: String!){
+    removePost(
+        input: {
+            postID: $postID
+            userID: $userID
+        }
+        password: $password
+    )
+}
