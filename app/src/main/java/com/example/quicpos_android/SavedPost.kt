@@ -50,7 +50,7 @@ class SavedPost : AppCompatActivity() {
         postText.text = Memory.posts[postIDX].text
         postDate.text = date
         postStats.text = stats
-        postID.text = Memory.posts[postIDX].ID?.substring(10, 34)
+        postID.text = Memory.posts[postIDX].ID?.substring(10, 16)
     }
 
     private fun setImage(){

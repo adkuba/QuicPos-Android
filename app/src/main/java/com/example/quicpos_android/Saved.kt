@@ -27,13 +27,14 @@ object Memory {
     var sharedPref: SharedPreferences? = null
 }
 
-class Saved : AppCompatActivity() {
+class Saved : AppCompatActivity(), OnPostDeleteListener {
 
     private var sharedPref: SharedPreferences? = null
     private var postsNumber = 0
     private var postsTexts = ArrayList<String>()
     private var postsLinks = ArrayList<String>()
     private var postsOwner = ArrayList<Boolean>()
+    private var savedListAdapter: SavedListAdapter? = null
 
     private val apolloClient: ApolloClient = ApolloClient.builder()
             .serverUrl("https://www.api.quicpos.com/query")
@@ -55,15 +56,6 @@ class Saved : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Saved"
-
-        val listView: ListView = findViewById(R.id.saved_list)
-        listView.setOnItemClickListener { adapterView, _, position, _ ->
-            val itemIdAtPos = adapterView.getItemIdAtPosition(position)
-            Memory.currentPostID = Memory.posts[itemIdAtPos.toInt()].ID
-            val intent = Intent(this, SavedPost::class.java)
-            intent.putExtra("POST_INDEX", itemIdAtPos.toInt())
-            startActivity(intent)
-        }
     }
 
     private fun getPosts(postsids: Set<String>) {
@@ -139,9 +131,10 @@ class Saved : AppCompatActivity() {
                     }
                 }
 
-                val savedListAdapter = SavedListAdapter(this@Saved, postsTexts.toTypedArray(), postsLinks.toTypedArray(), postsOwner.toTypedArray())
+                savedListAdapter = SavedListAdapter(this@Saved, postsTexts.toTypedArray(), postsLinks.toTypedArray(), postsOwner.toTypedArray())
+                savedListAdapter!!.mListener = this@Saved
                 val listView: ListView = findViewById(R.id.saved_list)
-                listView.adapter = savedListAdapter
+                listView.adapter = savedListAdapter!!
             }
             updateNumber(counter)
             val myPosts = sharedPref?.getStringSet(getString(R.string.myposts), HashSet<String>())
@@ -178,5 +171,27 @@ class Saved : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    override fun onPostDelete(position: Int) {
+        this@Saved.runOnUiThread {
+            postsTexts.removeAt(position)
+            postsLinks.removeAt(position)
+            postsOwner.removeAt(position)
+            savedListAdapter = SavedListAdapter(this@Saved, postsTexts.toTypedArray(), postsLinks.toTypedArray(), postsOwner.toTypedArray())
+            savedListAdapter!!.mListener = this@Saved
+            val listView: ListView = findViewById(R.id.saved_list)
+            listView.adapter = savedListAdapter!!
+        }
+        updateNumber(postsNumber-1)
+    }
+
+    override fun onPostClick(position: Int) {
+        this@Saved.runOnUiThread {
+            Memory.currentPostID = Memory.posts[position].ID
+            val intent = Intent(this, SavedPost::class.java)
+            intent.putExtra("POST_INDEX", position)
+            startActivity(intent)
+        }
     }
 }

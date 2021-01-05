@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/mini_text"
-        android:text="Post"
+        android:text="@string/post"
         android:maxLines="2"
         android:textColor="?attr/colorOnSecondary"
         android:layout_marginTop="30dp"
         android:layout_marginStart="15dp"
+        android:textSize="15sp"
         android:layout_marginEnd="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -18,33 +20,48 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="15dp"
         android:orientation="horizontal"
         android:layout_below="@+id/mini_text">
 
 
-        <TextView
+        <Button
             android:id="@+id/mini_link"
-            android:text="link"
+            android:text="@string/stats"
+            android:textAlignment="textStart"
+            android:background="?android:selectableItemBackground"
             android:textColor="?attr/colorSecondary"
             android:layout_marginTop="5dp"
             android:layout_weight="0.5"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
+            android:paddingStart="0dp"
+            android:layout_height="30dp"
+            android:layout_width="wrap_content"
+            tools:ignore="ButtonStyle,RtlSymmetry" />
 
-        <TextView
+        <Button
             android:id="@+id/delete"
-            android:text="Delete"
+            android:text="@string/delete"
             android:textColor="@color/red"
             android:layout_marginTop="5dp"
             android:layout_marginStart="15dp"
+            android:paddingEnd="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:background="?android:selectableItemBackground"
             android:layout_marginEnd="15dp"
             android:visibility="gone"
+            android:drawableEnd="@drawable/delete"
+            android:drawableTint="@color/red"
+            android:textAlignment="textEnd"
             android:layout_weight="0.5"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
+            android:layout_height="30dp"
+            android:layout_width="wrap_content"
+            tools:ignore="ButtonStyle,RtlSymmetry" />
 
 
     </LinearLayout>

@@ -26,4 +26,7 @@
     <string name="saved_userid">com.example.quicpos.user</string>
     <string name="myposts">com.example.quicpos.myposts</string>
     <string name="initalert">com.example.quicpos.initalert</string>
+    <string name="stats">Stats</string>
+    <string name="delete">Delete</string>
+    <string name="post">Post</string>
 </resources>

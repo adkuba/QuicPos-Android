@@ -31,3 +31,7 @@ w Downloads mamy ten pobrany certyfikat.
 java SSLPoke api.quicpos.com 443
 </code>
 Czy wszystko dobrze się łączy. Powinniśmy dostać success.
+
+
+## Listener
+Bardzo ciekawy kod wykorzystałem przy informowaniu z SavedListAdapter do activity Saved. Mam listener poprzez interfejs!
