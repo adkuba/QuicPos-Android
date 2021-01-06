@@ -17,7 +17,7 @@ import com.apollographql.apollo.exception.ApolloException
 import com.example.DeletePostMutation
 
 interface OnPostDeleteListener {
-    fun onPostDelete(position: Int)
+    fun onPostDelete(position: Int, id: String)
     fun onPostClick(position: Int)
 }
 
@@ -76,7 +76,7 @@ class SavedListAdapter(private val context: Activity, private var text: Array<St
                         displayAlert("Error!", message = "Bad delete return! Contact us to resolve the issue.")
                     } else {
                         displayAlert("Deleted", message = "Your post has been deleted!")
-                        mListener?.onPostDelete(position)
+                        mListener?.onPostDelete(position, objectID)
                     }
                 }
             })

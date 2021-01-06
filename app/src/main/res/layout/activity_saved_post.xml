@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textSize="12sp"
-            android:textColor="?attr/colorOnSecondary"
+            android:textColor="@color/gray"
             android:id="@+id/post_id"/>
 
     </com.google.android.material.bottomappbar.BottomAppBar>

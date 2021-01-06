@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="?attr/colorOnSecondary"
+            android:textColor="@color/gray"
             android:textSize="12sp"
             android:id="@+id/posts_number"/>
 

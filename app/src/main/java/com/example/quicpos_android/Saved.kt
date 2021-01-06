@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -35,6 +37,7 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
     private var postsLinks = ArrayList<String>()
     private var postsOwner = ArrayList<Boolean>()
     private var savedListAdapter: SavedListAdapter? = null
+    private var postsids = HashSet<String>()
 
     private val apolloClient: ApolloClient = ApolloClient.builder()
             .serverUrl("https://www.api.quicpos.com/query")
@@ -45,8 +48,8 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
         setContentView(R.layout.activity_saved)
 
         sharedPref = getSharedPreferences("QUICPOS", Context.MODE_PRIVATE)
-        val postsids = sharedPref?.getStringSet(getString(R.string.myposts), HashSet<String>())
-        postsNumber = postsids?.size!!
+        postsids = sharedPref?.getStringSet(getString(R.string.myposts), HashSet<String>()) as HashSet<String>
+        postsNumber = postsids.size
 
         val postsNumberText: TextView = findViewById(R.id.posts_number)
         val postsText = "$postsNumber posts"
@@ -55,13 +58,12 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
 
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Saved"
+        supportActionBar?.title = "Shared"
     }
 
     private fun getPosts(postsids: Set<String>) {
         lifecycleScope.launch {
             var counter = 0
-            var toDelete = ArrayList<String>()
             postsids.forEach {
                 var existingPost: Post? = null
                 Memory.posts.forEach PostLoop@{ post ->
@@ -114,8 +116,6 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
                             }
                             Memory.posts.add(post)
                         }
-                    } else {
-                        toDelete.add(it)
                     }
                 } else {
                     if (!existingPost?.blocked!!){
@@ -137,15 +137,22 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
                 listView.adapter = savedListAdapter!!
             }
             updateNumber(counter)
-            val myPosts = sharedPref?.getStringSet(getString(R.string.myposts), HashSet<String>())
-            val copyMyPosts = myPosts?.toMutableSet()
-            toDelete.forEach {
-                copyMyPosts?.remove(it)
-            }
-            val editor = sharedPref?.edit()
-            editor?.putStringSet(getString(R.string.myposts), copyMyPosts)
-            editor?.apply()
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_shared, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+
+        if (id == R.id.user_info) {
+            displayAlert("Info", "Your user ID is: ${Memory.userID} \n\nSave it to delete posts even when you uninstall QuicPos.\n\nContact with us: akuba@exemplum.pl")
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun displayAlert(title: String, message: String){
@@ -173,7 +180,7 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
         return true
     }
 
-    override fun onPostDelete(position: Int) {
+    override fun onPostDelete(position: Int, id: String) {
         this@Saved.runOnUiThread {
             postsTexts.removeAt(position)
             postsLinks.removeAt(position)
@@ -182,6 +189,14 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
             savedListAdapter!!.mListener = this@Saved
             val listView: ListView = findViewById(R.id.saved_list)
             listView.adapter = savedListAdapter!!
+            Memory.posts.removeAt(position)
+
+            val copyMyPosts = postsids.toMutableSet()
+            copyMyPosts.remove(id)
+            val editor = sharedPref?.edit()
+            editor?.putStringSet(getString(R.string.myposts), copyMyPosts)
+            editor?.apply()
+            postsids = copyMyPosts.toHashSet()
         }
         updateNumber(postsNumber-1)
     }

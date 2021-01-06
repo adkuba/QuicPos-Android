@@ -103,7 +103,7 @@
                 android:layout_weight="0.6"
                 android:gravity="center"
                 android:textSize="12sp"
-                android:textColor="?attr/colorOnSecondary"
+                android:textColor="@color/gray"
                 android:text="@string/create_post"/>
 
             <ImageButton
