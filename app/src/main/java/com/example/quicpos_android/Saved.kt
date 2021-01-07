@@ -150,7 +150,7 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
         val id = item.itemId
 
         if (id == R.id.user_info) {
-            displayAlert("Info", "Your user ID is: ${Memory.userID} \n\nSave it to delete posts even when you uninstall QuicPos.\n\nContact with us: akuba@exemplum.pl")
+            displayAlert("Info", "${Memory.userID} your ID. Save it to delete posts after uninstall. Contact: admin@tline.site")
         }
         return super.onOptionsItemSelected(item)
     }
