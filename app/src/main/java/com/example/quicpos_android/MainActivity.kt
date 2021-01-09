@@ -321,6 +321,7 @@ class MainActivity : AppCompatActivity() {
         val postStats = findViewById<TextView>(R.id.stats_text)
 
         Memory.currentPostID = posts[index].ID
+        Memory.currentPostUser = posts[index].userid
 
         var user = getString(R.string.post_user) + (posts[index].userid?.substring(0, 4) ?: "auto")
         if (posts[index].ad == true){

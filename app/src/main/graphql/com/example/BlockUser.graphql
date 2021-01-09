@@ -1,0 +1,9 @@
+mutation BlockUser($reqUser: String!, $blockUser: String!, $password: String!) {
+    blockUser(
+        input: {
+            reqUser: $reqUser,
+            blockUser: $blockUser,
+        }
+        password: $password
+    )
+}

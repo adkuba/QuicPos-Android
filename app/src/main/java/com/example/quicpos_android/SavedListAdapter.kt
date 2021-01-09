@@ -27,7 +27,6 @@ class SavedListAdapter(private val context: Activity, private var text: Array<St
         .serverUrl("https://www.api.quicpos.com/query")
         .build()
 
-    private val appVariables = AppVariables()
     var mListener: OnPostDeleteListener? = null
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -49,7 +48,7 @@ class SavedListAdapter(private val context: Activity, private var text: Array<St
 
         delete.setOnClickListener {
             val splited = link[position].split("/")
-            deletePost(splited[splited.size-1], position)
+            mListener?.onPostDelete(position, splited[splited.size-1])
         }
 
         var linkText = "Stats"
@@ -61,35 +60,5 @@ class SavedListAdapter(private val context: Activity, private var text: Array<St
         miniLink.text = linkText
 
         return listItem
-    }
-
-    fun deletePost(objectID: String, position: Int) {
-        apolloClient
-            .mutate(DeletePostMutation(userID = Memory.userID, postID = objectID, password = appVariables.password))
-            .enqueue(object: ApolloCall.Callback<DeletePostMutation.Data>() {
-                override fun onFailure(e: ApolloException) {
-                    displayAlert("Error!", message = e.localizedMessage ?: "Can't execute delete mutation.")
-                }
-
-                override fun onResponse(response: Response<DeletePostMutation.Data>) {
-                    if (response.data?.removePost != true){
-                        displayAlert("Error!", message = "Bad delete return! Contact us to resolve the issue.")
-                    } else {
-                        displayAlert("Deleted", message = "Your post has been deleted!")
-                        mListener?.onPostDelete(position, objectID)
-                    }
-                }
-            })
-    }
-
-    private fun displayAlert(title: String, message: String){
-        context.runOnUiThread {
-            val builder = AlertDialog.Builder(context)
-            builder.setTitle(title)
-            builder.setMessage(message)
-            builder.setPositiveButton("Ok", null)
-            val alertDialog: AlertDialog = builder.create()
-            alertDialog.show()
-        }
     }
 }

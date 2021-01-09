@@ -1,6 +1,7 @@
 package com.example.quicpos_android
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -11,9 +12,12 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.apollographql.apollo.ApolloCall
 import com.apollographql.apollo.ApolloClient
+import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.coroutines.await
 import com.apollographql.apollo.exception.ApolloException
+import com.example.DeletePostMutation
 import com.example.GetViewerPostQuery
 import kotlinx.coroutines.launch
 import kotlin.collections.ArrayList
@@ -25,6 +29,7 @@ import kotlin.collections.toTypedArray
 object Memory {
     var posts = ArrayList<Post>()
     var currentPostID: String? = null
+    var currentPostUser: String? = null
     var userID = ""
     var sharedPref: SharedPreferences? = null
 }
@@ -38,6 +43,7 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
     private var postsOwner = ArrayList<Boolean>()
     private var savedListAdapter: SavedListAdapter? = null
     private var postsids = HashSet<String>()
+    private var appVariables = AppVariables()
 
     private val apolloClient: ApolloClient = ApolloClient.builder()
             .serverUrl("https://www.api.quicpos.com/query")
@@ -180,7 +186,7 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
         return true
     }
 
-    override fun onPostDelete(position: Int, id: String) {
+    fun deletePost(position: Int, id: String){
         this@Saved.runOnUiThread {
             postsTexts.removeAt(position)
             postsLinks.removeAt(position)
@@ -199,6 +205,39 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
             postsids = copyMyPosts.toHashSet()
         }
         updateNumber(postsNumber-1)
+        displayAlert("Deleted", message = "Your post has been deleted!")
+    }
+
+    fun deletePostMutation(objectID: String, position: Int) {
+        apolloClient
+                .mutate(DeletePostMutation(userID = Memory.userID, postID = objectID, password = appVariables.password))
+                .enqueue(object: ApolloCall.Callback<DeletePostMutation.Data>() {
+                    override fun onFailure(e: ApolloException) {
+                        displayAlert("Error!", message = e.localizedMessage ?: "Can't execute delete mutation.")
+                    }
+
+                    override fun onResponse(response: Response<DeletePostMutation.Data>) {
+                        if (response.data?.removePost != true){
+                            displayAlert("Error!", message = "Bad delete return! Contact us to resolve the issue.")
+                        } else {
+                            deletePost(position, objectID)
+                        }
+                    }
+                })
+    }
+
+    override fun onPostDelete(position: Int, id: String) {
+        this@Saved.runOnUiThread {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Delete")
+            builder.setMessage("Do you really want to delete this post?")
+            builder.setNegativeButton("No", null)
+            builder.setPositiveButton("Yes", DialogInterface.OnClickListener{ _, _ ->
+                deletePostMutation(id, position)
+            })
+            val alertDialog: AlertDialog = builder.create()
+            alertDialog.show()
+        }
     }
 
     override fun onPostClick(position: Int) {

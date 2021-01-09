@@ -16,6 +16,7 @@
         <item name="actionBarStyle">@style/Custom.ActionBar</item>
         <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
         <item name="buttonBarNeutralButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/PositiveButtonStyle</item>
     </style>
 
     <style name="Theme.QuicPosAndroid.NoActionBar">

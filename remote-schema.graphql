@@ -6,6 +6,7 @@ schema {
 }
 
 type Mutation {
+    blockUser(input: Block!, password: String!): Boolean!
     createPost(input: NewPost!, password: String!): PostOut!
     learning(input: Learning!, password: String!): Boolean!
     payment(input: Payment!): Boolean!
@@ -55,6 +56,11 @@ type Stats {
 type View {
     date: String!
     localization: String!
+}
+
+input Block {
+    blockUser: String!
+    reqUser: String!
 }
 
 input Learning {
