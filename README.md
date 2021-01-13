@@ -4,6 +4,12 @@ Z tego co rozumiem aplikacje w Androidzie działają następująco:
   - Najważniejsze są activity - to jest taki jeden ekran, okienko - tak jak na froncie jest to View. Możemy się przemieszczać między różnymi activity. Może być Scroll Activity, Navigation Activity itd.
   - Następnie mamy fragments, są to takie jakby components na frontendzie. Może ich być kilka w ramach jednego activity, a przejścia między nimi może definiować Navigation Controller.
 
+## Schema
+Pobieranie schema. W głównym folderze wykonać:
+```sh
+./gradlew downloadApolloSchema --endpoint="https://api.quicpos.com/query" --schema="app/src/main/graphql/com/example/schema.json"
+``` 
+
 # SSL (permanent fix)
 Wykonując query w aplikacji na androida ponownie natrafiłem na błąd TSL handshake error. Złym rozwiązaniem byłoby ponowne dodanie certyfikatu to jakiejś pamięci javy w androidzie. **Ewidentnie jest jakiś błąd z certyfikatem na serwerze.** Rozwiązanie:
 - Mogę sprawdzić czy serwer ma dobry SSL poprzez komendę <code>openssl s_client -debug -connect www.api.quicpos.com:443

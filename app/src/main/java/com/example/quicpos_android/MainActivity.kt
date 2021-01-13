@@ -33,6 +33,8 @@ import java.io.IOException
 import java.net.MalformedURLException
 import java.net.URL
 import java.net.UnknownServiceException
+import java.util.*
+import kotlin.concurrent.schedule
 
 
 //post struct
@@ -62,6 +64,20 @@ data class Post(
             blocked = null,
             ad = null
     )
+
+    constructor(text: String, loading: Boolean) : this(
+            ID = null,
+            text = text,
+            userid = null,
+            image = null,
+            imageBitmap = null,
+            shares = null,
+            views = null,
+            creationTime = null,
+            loading = loading,
+            blocked = null,
+            ad = null
+    )
 }
 
 //app variables
@@ -83,7 +99,7 @@ class MainActivity : AppCompatActivity() {
     private var sharedPref: SharedPreferences? = null
     private var userID = ""
 
-    private var posts = arrayListOf(Post(text = "Loading..."), Post(text = "Loading..."))
+    private var posts = arrayListOf(Post(text = "Loading...", loading = true), Post(text = "Loading...", loading = true))
     private val appVariables = AppVariables()
     private var adCounter = -2
     private var index = 0
@@ -150,9 +166,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 updatePostFragment()
             }
-            else if (posts[posts.size-2].ID != null){
+            else {
                 reportView()
-                posts.add(Post(text = "Loading..."))
+                posts.add(Post(text = "Loading...", loading = true))
                 if (posts.size > 10){
                     posts.removeAt(0)
                 }
@@ -180,7 +196,9 @@ class MainActivity : AppCompatActivity() {
         } else {
             //get 2 posts
             getPost()
-            getPost()
+            Timer("InitGetPost", false).schedule(1000) {
+                getPost()
+            }
         }
         println(userID)
     }
@@ -200,12 +218,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun reportView() {
+        val time = stopTimer()
         if (mode == "NORMAL" && userID != "" && posts[posts.size-2].ID != null){
             val objectID = posts[posts.size-2].ID?.split("\"")
             val deviceString = Build.MANUFACTURER + " " + Build.MODEL
 
             apolloClient
-                    .mutate(ViewMutation(userID = userID, postID = objectID?.get(1)!!, time = stopTimer(), device = deviceString, password = appVariables.password))
+                    .mutate(ViewMutation(userID = userID, postID = objectID?.get(1)!!, time = time, device = deviceString, password = appVariables.password))
                     .enqueue(object: ApolloCall.Callback<ViewMutation.Data>() {
                         override fun onResponse(response: Response<ViewMutation.Data>){
                             if (response.data?.view != true) {
@@ -231,6 +250,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun getTime(): String {
+        val nowCalendar = Calendar.getInstance()
+        return nowCalendar.get(Calendar.HOUR_OF_DAY).toString() + ":" + nowCalendar.get(Calendar.MINUTE).toString() + ":" + nowCalendar.get(Calendar.SECOND).toString()
+    }
+
     private fun getPost(){
         //println("USERID: $userID")
 
@@ -245,15 +269,17 @@ class MainActivity : AppCompatActivity() {
                 ad = true
             }
 
+            val nowString = getTime()
+
             lifecycleScope.launch {
                 val response = try {
                     apolloClient.query(GetPostQuery(userID, normalMode, appVariables.password, ad)).await()
                 } catch (e: ApolloException) {
                     var index = posts.size-1
-                    if (posts[posts.size-2].ID == null){
+                    if (posts[posts.size-2].loading == true){
                         index = posts.size-2
                     }
-                    posts[index] = Post(text = e.localizedMessage ?: "Error! Error with executing post query.")
+                    posts[index] = Post(text = "Error: " + nowString + "\n" + e.localizedMessage + "\n\nTap next post arrow to retry.")
                     updatePostFragment()
                     return@launch
                 }
@@ -261,18 +287,20 @@ class MainActivity : AppCompatActivity() {
                 adCounter += 1
 
                 var index = posts.size-1
-                if (posts[posts.size-2].ID == null){
+                if (posts[posts.size-2].loading == true){
                     index = posts.size-2
                 }
+                //println(posts)
+                //println(index)
 
                 val postResponse = response.data?.post
                 if (response.hasErrors()) {
-                    posts[index] = Post(text = response.errors?.map { error -> error.message }?.joinToString { "\n" } ?: "Error! Post get response has errors.")
+                    posts[index] = Post(text = "Error: " + nowString + "\n" + response.errors?.map { error -> error.message }?.joinToString { "\n" } + "\n\nTap next post arrow to retry.")
                     updatePostFragment()
                     return@launch
                 }
                 if (postResponse == null){
-                    posts[index] = Post(text = "Error! Empty post response.")
+                    posts[index] = Post(text = "Error: $nowString\nEmpty post response.\n\nTap next post arrow to retry.")
                     updatePostFragment()
                     return@launch
                 }
@@ -286,6 +314,7 @@ class MainActivity : AppCompatActivity() {
                 posts[index].views = postResponse.views
                 posts[index].creationTime = postResponse.creationTime
                 posts[index].ad = ad
+                posts[index].loading = false
 
                 //if updating visible post
                 if (index == posts.size-2){
@@ -386,23 +415,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getUser(){
+        val nowString = getTime()
         lifecycleScope.launch {
             val response = try {
                 apolloClient.query(GetUserQuery(appVariables.password)).await()
             } catch (e: ApolloException) {
-                posts[posts.size-2] = Post(text = e.localizedMessage ?: "Error! Error with executing user query.")
+                posts[posts.size-2] = Post(text = "Error: " + nowString + "\n" + e.localizedMessage + "\n\nReset application to retry.")
                 updatePostFragment()
                 return@launch
             }
 
             val userid = response.data?.createUser
             if (userid == null){
-                posts[posts.size-2] = Post(text = "Error! Empty user response.")
+                posts[posts.size-2] = Post(text = "Error! Empty user response." + "\n\nReset application to retry.")
                 updatePostFragment()
                 return@launch
             }
             if (response.hasErrors()){
-                posts[posts.size-2] = Post(text = response.errors?.map { error -> error.message }?.joinToString { "\n" } ?: "Error! User get response has errors.")
+                posts[posts.size-2] = Post(text = "Error: " + nowString + "\n" + response.errors?.map { error -> error.message }?.joinToString { "\n" } + "\n\nReset application to retry.")
                 updatePostFragment()
                 return@launch
             }
