@@ -1,3 +1,4 @@
+
 package com.example.quicpos_android
 
 import android.content.Context
@@ -80,15 +81,7 @@ data class Post(
     )
 }
 
-//app variables
-data class AppVariables(
-        val password: String
-) {
-    constructor() : this(
-            password = ""
-    )
-}
-
+//WARNING Create AppVariables.kt with data class containing password and constructor
 
 class MainActivity : AppCompatActivity() {
 
