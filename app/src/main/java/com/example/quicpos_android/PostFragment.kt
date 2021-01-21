@@ -19,6 +19,7 @@ import com.example.BlockUserMutation
 import com.example.DeletePostMutation
 import com.example.ReportMutation
 import com.example.ShareMutation
+import java.util.ArrayList
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -122,6 +123,7 @@ class PostFragment : Fragment() {
                                 val editor = Memory.sharedPref?.edit()
                                 editor?.putStringSet(getString(R.string.myposts), copyMyPosts)
                                 editor?.apply()
+                                Memory.posts = ArrayList()
 
                                 //share
                                 val intent = Intent()

@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -19,7 +21,13 @@ import com.apollographql.apollo.coroutines.await
 import com.apollographql.apollo.exception.ApolloException
 import com.example.DeletePostMutation
 import com.example.GetViewerPostQuery
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import java.io.IOException
+import java.net.MalformedURLException
+import java.net.URL
+import java.net.UnknownServiceException
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 import kotlin.collections.Set
@@ -41,6 +49,7 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
     private var postsTexts = ArrayList<String>()
     private var postsLinks = ArrayList<String>()
     private var postsOwner = ArrayList<Boolean>()
+    private var postsImages = ArrayList<Bitmap?>()
     private var savedListAdapter: SavedListAdapter? = null
     private var postsids = HashSet<String>()
     private var appVariables = AppVariables()
@@ -115,9 +124,11 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
                             postsTexts.add(postResponse.text)
                             if (postResponse.userId == Memory.userID){
                                 postsLinks.add("https://www.quicpos.com/pay/$it")
+                                postsImages.add(getImage(postResponse.image))
                                 postsOwner.add(true)
                             } else {
                                 postsLinks.add("https://www.quicpos.com/stats/$it")
+                                postsImages.add(getImage(postResponse.image))
                                 postsOwner.add(false)
                             }
                             Memory.posts.add(post)
@@ -129,15 +140,17 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
                         postsTexts.add(existingPost?.text!!)
                         if (existingPost?.userid == Memory.userID){
                             postsLinks.add("https://www.quicpos.com/pay/" + existingPost?.ID!!.split("\"")[1])
+                            postsImages.add(getImage(existingPost?.image ?: ""))
                             postsOwner.add(true)
                         } else {
                             postsLinks.add("https://www.quicpos.com/stats/" + existingPost?.ID!!.split("\"")[1])
+                            postsImages.add(getImage(existingPost?.image ?: ""))
                             postsOwner.add(false)
                         }
                     }
                 }
 
-                savedListAdapter = SavedListAdapter(this@Saved, postsTexts.toTypedArray(), postsLinks.toTypedArray(), postsOwner.toTypedArray())
+                savedListAdapter = SavedListAdapter(this@Saved, postsTexts.toTypedArray(), postsLinks.toTypedArray(), postsOwner.toTypedArray(), postsImages.toTypedArray())
                 savedListAdapter!!.mListener = this@Saved
                 val listView: ListView = findViewById(R.id.saved_list)
                 listView.adapter = savedListAdapter!!
@@ -190,8 +203,9 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
         this@Saved.runOnUiThread {
             postsTexts.removeAt(position)
             postsLinks.removeAt(position)
+            postsImages.removeAt(position)
             postsOwner.removeAt(position)
-            savedListAdapter = SavedListAdapter(this@Saved, postsTexts.toTypedArray(), postsLinks.toTypedArray(), postsOwner.toTypedArray())
+            savedListAdapter = SavedListAdapter(this@Saved, postsTexts.toTypedArray(), postsLinks.toTypedArray(), postsOwner.toTypedArray(), postsImages.toTypedArray())
             savedListAdapter!!.mListener = this@Saved
             val listView: ListView = findViewById(R.id.saved_list)
             listView.adapter = savedListAdapter!!
@@ -206,6 +220,32 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
         }
         updateNumber(postsNumber-1)
         displayAlert("Deleted", message = "Your post has been deleted!")
+    }
+
+    private suspend fun getImage(imageID: String): Bitmap?{
+
+        if (imageID != "") {
+            //download
+            val result = lifecycleScope.async(Dispatchers.IO){
+                try {
+                    val url = URL("https://storage.googleapis.com/quicpos-images/$imageID")
+                    return@async BitmapFactory.decodeStream(url.openConnection().getInputStream())
+                } catch (e: IOException){
+                    return@async null
+                } catch (e: UnknownServiceException){
+                    return@async null
+                } catch (e: MalformedURLException){
+                    return@async null
+                }
+            }
+
+            try {
+                return result.await() as Bitmap
+            } catch (e: Exception){
+                displayAlert(title = "Error!", message = "Can't download post image!")
+            }
+        }
+        return null
     }
 
     fun deletePostMutation(objectID: String, position: Int) {
