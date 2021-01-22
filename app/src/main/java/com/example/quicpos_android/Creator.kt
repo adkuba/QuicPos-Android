@@ -6,9 +6,11 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
@@ -66,6 +68,26 @@ class Creator : AppCompatActivity() {
         sendButton.setOnClickListener {
             createPost()
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_creator, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+
+        if (id == R.id.rotate_image) {
+            if (mainBitmap != null){
+                val creatorImage: ImageView = findViewById(R.id.creator_image)
+                val rotatedBitmap = mainBitmap?.let { rotateImage(it, 90f) }
+                creatorImage.setImageBitmap(rotatedBitmap)
+                mainBitmap = rotatedBitmap
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     fun createPost(){
@@ -180,11 +202,16 @@ class Creator : AppCompatActivity() {
             }
             val inputStream: InputStream = contentResolver.openInputStream(data.data!!)!!
             val bitmap: Bitmap = BitmapFactory.decodeStream(inputStream)
-
             val creatorImage: ImageView = findViewById(R.id.creator_image)
             creatorImage.setImageBitmap(bitmap)
             mainBitmap = bitmap
         }
+    }
+
+    private fun rotateImage(source: Bitmap, angle: Float): Bitmap? {
+        val matrix = Matrix()
+        matrix.postRotate(angle)
+        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
     }
 
 
