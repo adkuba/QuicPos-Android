@@ -1,43 +1,60 @@
-# QuicPos-Android
+# Table of contents
+  - [What I've learned](#what-ive-learned)
+  - [Important](#important)
+  - [Android](#android)
+    - [Structure](#structure)
+    - [Other](#other)
+  - [Apollo](#apollo)
+  - [SSL](#ssl)
+    - [Add certificate to the local memory](#add-certificate-to-the-local-memory)
 
-Z tego co rozumiem aplikacje w Androidzie działają następująco:
-  - Najważniejsze są activity - to jest taki jeden ekran, okienko - tak jak na froncie jest to View. Możemy się przemieszczać między różnymi activity. Może być Scroll Activity, Navigation Activity itd.
-  - Następnie mamy fragments, są to takie jakby components na frontendzie. Może ich być kilka w ramach jednego activity, a przejścia między nimi może definiować Navigation Controller.
 
-## Schema
-Pobieranie schema. W głównym folderze wykonać:
+
+# What I've learned
+- How to create client application in **Kotlin** for Android devices
+- Working with **Apollo GraphQL**
+- Deploying application to the **Play Store**
+- Checking and configuring **SSL**
+
+
+
+# Important
+- Create <code>AppVariables.kt</code> file with data class containing password String value and default constructor.
+
+
+
+# Android
+### Structure
+Notes about main Android application structure:
+- Activity - one view, window, screen, similar to frontend's views. We can switch between different activities with for example Intents or Navigation Controller. There can be Scroll Activity, Nacigation Activity etc.
+- Fragment - just like frontend's components. There can be multiple Fragments in one Activity, we can reuse them.
+- Intent - like an action, for example action to open another activity or to look for pictures in gallery.
+- Adapters - list views have adapters to display for example multiple, the same structure, fragments in this list.
+- Menu - define your own menu and replace default.
+- Other .xml files - define variables (strings, ints...), color values and styles/themes definition for your app.
+
+### Other
+- Interesting code, method to infrom about click from <code>SavedListAdapter</code>to <code>Saved</code> activity. I implemented listener through interface.
+- In previous versions to store already downloaded posts I used <code>ViewModel</code> structure - I think it works similar to for example Vue Store. Now I'm using static object.
+
+
+
+# Apollo
+Similar to iOS [application](https://github.com/adkuba/QuicPos-IOS), see [tutorial](https://www.apollographql.com/docs/android/essentials/get-started-java/). To download schema from the server, execute in main folder:
 ```sh
 ./gradlew downloadApolloSchema --endpoint="https://api.quicpos.com/query" --schema="app/src/main/graphql/com/example/schema.json"
 ``` 
 
-# SSL (permanent fix)
-Wykonując query w aplikacji na androida ponownie natrafiłem na błąd TSL handshake error. Złym rozwiązaniem byłoby ponowne dodanie certyfikatu to jakiejś pamięci javy w androidzie. **Ewidentnie jest jakiś błąd z certyfikatem na serwerze.** Rozwiązanie:
-- Mogę sprawdzić czy serwer ma dobry SSL poprzez komendę <code>openssl s_client -debug -connect www.api.quicpos.com:443
-</code> Jeśli jest coś nie tak prawdopodobnie pojawi się błąd weryfikacji.
-- Okazało się że u mnie brakowało Łańcucha certyfikatu (Intermediate CA). Wystarczy łańcuch dokleić na koniec certyfikatu głównego (plik .crt otworzyć w notatniku np). Może być na odwrót. To rozwiązało mój problem.
-
-# SSL java (temp fix)
-Przy pobieraniu schama przez apollo graphql wyskoczył mi błąd:
-```
-Execution failed for task ':app:downloadApolloSchema'. > javax.net.ssl.SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
-```
-
-Jest on związany z tym że java nie ma zapisanego certyfikatu <code>www.api.quicpos.com</code>
-
-## Dodawanie certyfikatu do pamięci javy
-1) Java ma zasobnik na klucze, mój był w <code>/etc/ssl/certs/java/cacert</code> Ścieżkę można znaleźć przez wejście do folderu <code></code>
-2) Wchodzimy na moją stronę i pobieramy certyfikat poprzez przeglądarkę (export po wejściu w details certyfikatu) - zapisujemy jako <code>Base64 encoded ASCII single certificate</code>
-3) W folderze w którym jest cacert dodajemy do niego certyfikat komendą:
-<code>
-sudo $JAVA_HOME/bin/keytool -import -alias quicposapi -keystore ./cacerts -file ~/Downloads/www.api.quicpos.com
-</code>
-w Downloads mamy ten pobrany certyfikat.
-4) Robimy reboot, opcjonalnie sprawdzamy za pomocą pliku SSLPoke.class jest u mnie w repo, komendą:
-<code>
-java SSLPoke api.quicpos.com 443
-</code>
-Czy wszystko dobrze się łączy. Powinniśmy dostać success.
 
 
-## Listener
-Bardzo ciekawy kod wykorzystałem przy informowaniu z SavedListAdapter do activity Saved. Mam listener poprzez interfejs!
+# SSL
+During downloading schema I came across an error <code>TSL handshake error</code> related to badly configured SSL certificate on my server. The solution:
+- Check if server has good SSL certificate: <code>openssl s_client -debug -connect www.api.quicpos.com:443</code>
+- In my case, crt file on [server](https://github.com/adkuba/QuicPos-Server) was missing Intermediate CA part. I added it to the end of the main certificate (open it in notepad) and it solved my problem. You may need to add it to the beginning.
+
+### Add certificate to the local memory
+If you can't repair SSL on server, add untrusted certificate to the local memory. HTTPS connection will work only on your machine:
+- Java has special keystore, my was located in: <code>/etc/ssl/certs/java/cacert</code>
+- Add downloaded (through browser) certificate to the keystore: <code>
+sudo $JAVA_HOME/bin/keytool -import -alias quicposapi -keystore ./cacerts -file ~/Downloads/www.api.quicpos.com</code>
+- Reboot

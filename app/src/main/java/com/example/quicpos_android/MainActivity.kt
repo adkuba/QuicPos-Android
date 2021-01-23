@@ -459,7 +459,3 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 }
-
-//KIEDYŚ MIAŁEM VIEW MODEL
-//TO CHYBA DZIAŁAŁO JAK STORE W VUE
-//TERAZ UŻYWAM OBJECT Z SAVED
