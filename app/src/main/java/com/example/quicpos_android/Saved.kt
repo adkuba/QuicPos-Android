@@ -209,7 +209,9 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
             savedListAdapter!!.mListener = this@Saved
             val listView: ListView = findViewById(R.id.saved_list)
             listView.adapter = savedListAdapter!!
-            Memory.posts.removeAt(position)
+            if (position < Memory.posts.size){
+                Memory.posts.removeAt(position)
+            }
 
             val copyMyPosts = postsids.toMutableSet()
             copyMyPosts.remove(id)
