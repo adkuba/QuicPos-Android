@@ -34,7 +34,7 @@ class Creator : AppCompatActivity() {
     val PICK_IMAGE = 1
     var mainBitmap: Bitmap? = null
     private val apolloClient: ApolloClient = ApolloClient.builder()
-            .serverUrl("https://www.api.quicpos.com/query")
+            .serverUrl("https://api.quicpos.com/quicpos/query")
             .build()
     private var sharedPref: SharedPreferences? = null
     var userID = ""

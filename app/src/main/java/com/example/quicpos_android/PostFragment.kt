@@ -27,7 +27,7 @@ import java.util.ArrayList
 class PostFragment : Fragment() {
 
     private val apolloClient: ApolloClient = ApolloClient.builder()
-            .serverUrl("https://www.api.quicpos.com/query")
+            .serverUrl("https://api.quicpos.com/quicpos/query")
             .build()
     private val appVariables = AppVariables()
 

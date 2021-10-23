@@ -4,7 +4,7 @@
   "extensions": {
     "endpoints": {
       "Remote QuicPos GraphQL Endpoint": {
-        "url": "https://api.quicpos.com/query",
+        "url": "https://api.quicpos.com/quicpos/query",
         "headers": {
           "user-agent": "JS GraphQL"
         },

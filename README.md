@@ -42,7 +42,7 @@ Notes about main Android application structure:
 # Apollo
 Similar to iOS [application](https://github.com/adkuba/QuicPos-IOS), see [tutorial](https://www.apollographql.com/docs/android/essentials/get-started-java/). To download schema from the server, execute in main folder:
 ```sh
-./gradlew downloadApolloSchema --endpoint="https://api.quicpos.com/query" --schema="app/src/main/graphql/com/example/schema.json"
+./gradlew downloadApolloSchema --endpoint="https://api.quicpos.com/quicpos/query" --schema="app/src/main/graphql/com/example/schema.json"
 ``` 
 
 
