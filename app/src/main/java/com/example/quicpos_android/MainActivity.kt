@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
 
     private var mode = "NORMAL"
     private val apolloClient: ApolloClient = ApolloClient.builder()
-        .serverUrl("https://api.quicpos.com/quicpos/query")
+        .serverUrl("http://akuba.pl/api/quicpos/query")
         .build()
     private var sharedPref: SharedPreferences? = null
     private var userID = ""

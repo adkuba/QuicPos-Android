@@ -55,7 +55,7 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
     private var appVariables = AppVariables()
 
     private val apolloClient: ApolloClient = ApolloClient.builder()
-            .serverUrl("https://api.quicpos.com/quicpos/query")
+            .serverUrl("http://akuba.pl/api/quicpos/query")
             .build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
