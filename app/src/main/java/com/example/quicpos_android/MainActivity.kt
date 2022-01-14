@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
 
     private var mode = "NORMAL"
     private val apolloClient: ApolloClient = ApolloClient.builder()
-        .serverUrl("http://akuba.pl/api/quicpos/query")
+        .serverUrl("https://akuba.pl/api/quicpos/query")
         .build()
     private var sharedPref: SharedPreferences? = null
     private var userID = ""
@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
             builder.setTitle("Regulations")
             builder.setMessage("By using QuicPos you agree to our regulations.")
             builder.setNeutralButton("Read more", DialogInterface.OnClickListener{ dialog, id ->
-                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.quicpos.com#regulations"))
+                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.akuba.pl/quicpos#regulations"))
                 startActivity(browserIntent)
             })
             builder.setPositiveButton("Ok", null)

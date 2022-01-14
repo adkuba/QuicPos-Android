@@ -35,7 +35,7 @@ interface OnPostDeleteListener {
 class SavedListAdapter(private val context: Activity, private var text: Array<String>, private var link: Array<String>, private var owner: Array<Boolean>, private var images: Array<Bitmap?>) : ArrayAdapter<String>(context, R.layout.post_mini, text) {
 
     private val apolloClient: ApolloClient = ApolloClient.builder()
-        .serverUrl("http://akuba.pl/api/quicpos/query")
+        .serverUrl("https://akuba.pl/api/quicpos/query")
         .build()
 
     var mListener: OnPostDeleteListener? = null

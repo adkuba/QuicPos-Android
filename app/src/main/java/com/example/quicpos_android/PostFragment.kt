@@ -27,7 +27,7 @@ import java.util.ArrayList
 class PostFragment : Fragment() {
 
     private val apolloClient: ApolloClient = ApolloClient.builder()
-            .serverUrl("http://akuba.pl/api/quicpos/query")
+            .serverUrl("https://akuba.pl/api/quicpos/query")
             .build()
     private val appVariables = AppVariables()
 
@@ -128,7 +128,7 @@ class PostFragment : Fragment() {
                                 //share
                                 val intent = Intent()
                                 intent.action = Intent.ACTION_SEND
-                                intent.putExtra(Intent.EXTRA_TEXT, "https://www.quicpos.com/post/" + objectID[1])
+                                intent.putExtra(Intent.EXTRA_TEXT, "https://www.akuba.pl/quicpos/post/" + objectID[1])
                                 intent.type = "text/plain"
                                 startActivity(Intent.createChooser(intent, "Share post"))
                             }

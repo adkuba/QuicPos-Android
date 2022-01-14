@@ -55,7 +55,7 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
     private var appVariables = AppVariables()
 
     private val apolloClient: ApolloClient = ApolloClient.builder()
-            .serverUrl("http://akuba.pl/api/quicpos/query")
+            .serverUrl("https://akuba.pl/api/quicpos/query")
             .build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,11 +123,11 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
                             counter++
                             postsTexts.add(postResponse.text)
                             if (postResponse.userId == Memory.userID){
-                                postsLinks.add("https://www.quicpos.com/pay/$it")
+                                postsLinks.add("https://www.akuba.pl/quicpos/pay/$it")
                                 postsImages.add(getImage(postResponse.image))
                                 postsOwner.add(true)
                             } else {
-                                postsLinks.add("https://www.quicpos.com/stats/$it")
+                                postsLinks.add("https://www.akuba.pl/quicpos/stats/$it")
                                 postsImages.add(getImage(postResponse.image))
                                 postsOwner.add(false)
                             }
@@ -139,11 +139,11 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
                         counter++
                         postsTexts.add(existingPost?.text!!)
                         if (existingPost?.userid == Memory.userID){
-                            postsLinks.add("https://www.quicpos.com/pay/" + existingPost?.ID!!.split("\"")[1])
+                            postsLinks.add("https://www.akuba.pl/quicpos/pay/" + existingPost?.ID!!.split("\"")[1])
                             postsImages.add(getImage(existingPost?.image ?: ""))
                             postsOwner.add(true)
                         } else {
-                            postsLinks.add("https://www.quicpos.com/stats/" + existingPost?.ID!!.split("\"")[1])
+                            postsLinks.add("https://www.akuba.pl/quicpos/stats/" + existingPost?.ID!!.split("\"")[1])
                             postsImages.add(getImage(existingPost?.image ?: ""))
                             postsOwner.add(false)
                         }
@@ -169,7 +169,7 @@ class Saved : AppCompatActivity(), OnPostDeleteListener {
         val id = item.itemId
 
         if (id == R.id.user_info) {
-            displayAlert("Info", "${Memory.userID} your ID. Save it to delete posts after uninstall. Contact: admin@tline.site")
+            displayAlert("Info", "${Memory.userID} your ID. Save it to delete posts after uninstall. Contact: akuba@exemplum.pl")
         }
         return super.onOptionsItemSelected(item)
     }

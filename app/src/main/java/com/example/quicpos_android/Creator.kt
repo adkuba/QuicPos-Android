@@ -34,7 +34,7 @@ class Creator : AppCompatActivity() {
     val PICK_IMAGE = 1
     var mainBitmap: Bitmap? = null
     private val apolloClient: ApolloClient = ApolloClient.builder()
-            .serverUrl("http://akuba.pl/api/quicpos/query")
+            .serverUrl("https://akuba.pl/api/quicpos/query")
             .build()
     private var sharedPref: SharedPreferences? = null
     var userID = ""
@@ -131,7 +131,7 @@ class Creator : AppCompatActivity() {
                                     //share
                                     val intent = Intent()
                                     intent.action = Intent.ACTION_SEND
-                                    intent.putExtra(Intent.EXTRA_TEXT, "https://www.quicpos.com/post/" + objectID[1])
+                                    intent.putExtra(Intent.EXTRA_TEXT, "https://www.akuba.pl/quicpos/post/" + objectID[1])
                                     intent.type = "text/plain"
                                     startActivity(Intent.createChooser(intent, "Share post"))
                                 } else {
